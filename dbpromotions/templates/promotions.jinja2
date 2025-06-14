@@ -30,56 +30,58 @@
     <meta name="builder_max_del_perc" content="{{builder_max_del_perc}}">
     <meta name="max_deleted_bad" content="{{max_deleted_bad}}">
     <meta name="max_deleted_warning" content="{{max_deleted_warning}}">
+
+    <link rel="icon" type="image/jpg" href="https://cdn.donmai.us/original/bd/07/bd0796d30c0ddd8c33d40ce455ef7ea5.jpg">
 </head>
 
 <body>
-    <div class="sticky-widget">
-    </div>
+    <div id="prrrrrrrromotions1" class="prrrrrrrromotions"></div>
+    <div id="prrrrrrrromotions2" class="prrrrrrrromotions"></div>
+    <div id="container">
+        <h1>Promotion Candidates for Danbooru</h2>
+        <p class="small">Only users with edits within the last month are shown. Each user is updated at least once a week.</p>
+        <!-- <p class="small">"Hide" will ignore a user across all reports for one month.</a></p> -->
 
-    <h1>Promotion Candidates for Danbooru</h2>
-    <p class="small">Only users with edits within the last month are shown. Each user is updated at least once a week.</p>
-    <!-- <p class="small">"Hide" will ignore a user across all reports for one month.</a></p> -->
+        <table id="users" class="cell-border order-column compact stripe hover" style="display: none">
+            <thead>
+                <tr>
+                    <!-- <th>Hide</th> -->
+                    <th>ID</th>
+                    <th>Level</th>
+                    <th>User</th>
+                    <th>Uploads</th>
+                    <th>Deleted Uploads</th>
+                    <th>Total %</th>
+                    <th>Recent Uploads</th>
+                    <th>Recent Deleted</th>
+                    <th>Recent %</th>
+                    <th>Notes</th>
+                    <th>Edits</th>
+                    <th>Last Edit</th>
+                </tr>
+            </thead>
 
-    <table id="users" class="cell-border order-column compact stripe hover" style="display: none">
-        <thead>
-            <tr>
-                <!-- <th>Hide</th> -->
-                <th>ID</th>
-                <th>Level</th>
-                <th>User</th>
-                <th>Uploads</th>
-                <th>Deleted Uploads</th>
-                <th>Total %</th>
-                <th>Recent Uploads</th>
-                <th>Recent Deleted</th>
-                <th>Recent %</th>
-                <th>Notes</th>
-                <th>Edits</th>
-                <th>Last Edit</th>
-            </tr>
-        </thead>
-
-        <tbody>
-            {% for user in users %}
-            <tr class="{{ user.html_classes }}" data-user-id="{{ user.id }}">
-                <!-- <td><input type="checkbox" class="user-checkbox" data-user-id="{{ user.id }}"></td> -->
-                <td class="userid">{{ user.id }}</td>
-                <td class="level" data-order="{{ user.level }}">{{ user.level_string|title }}</td>
-                <td class="username"><a href="{{ user.url }}" target="_blank">{{ user.name }}</a></td>
-                <td class="totalUploaded">{{user.total_posts}}</td>
-                <td class="totalDeleted">{{user.total_deleted_posts}}</td>
-                <td class="totalRatio">{{ user.html_total_deletion_ratio }}</td>
-                <td class="recentUploaded"><a href="{{ user.recent_posts_url }}" target="_blank">{{ user.recent_posts }}</a></td>
-                <td class="recentDeleted"><a href="{{ user.recent_deleted_posts_url }}" target="_blank">{{ user.recent_deleted_posts }}</a></td>
-                <td class="recentRatio">{{ user.html_recent_deletion_ratio }}</td>
-                <td class="notes">{{ user.total_note_edits }}</td>
-                <td class="totalEdits"><a href="{{ user.post_edits_url }}" target="_blank">{{ user.post_edits }}</a></td>
-                <td class="lastEdit" data-order="{{ user.last_edit_dt | days_ago }}">{{ user.last_edit_dt | days_ago_str }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-
+            <tbody>
+                {% for user in users %}
+                <tr class="{{ user.html_classes }}" data-user-id="{{ user.id }}">
+                    <!-- <td><input type="checkbox" class="user-checkbox" data-user-id="{{ user.id }}"></td> -->
+                    <td class="userid">{{ user.id }}</td>
+                    <td class="level" data-order="{{ user.level }}">{{ user.level_string|title }}</td>
+                    <td class="username"><a href="{{ user.url }}" target="_blank">{{ user.name }}</a></td>
+                    <td class="totalUploaded">{{user.total_posts}}</td>
+                    <td class="totalDeleted">{{user.total_deleted_posts}}</td>
+                    <td class="totalRatio">{{ user.html_total_deletion_ratio }}</td>
+                    <td class="recentUploaded"><a href="{{ user.recent_posts_url }}" target="_blank">{{ user.recent_posts }}</a></td>
+                    <td class="recentDeleted"><a href="{{ user.recent_deleted_posts_url }}" target="_blank">{{ user.recent_deleted_posts }}</a></td>
+                    <td class="recentRatio">{{ user.html_recent_deletion_ratio }}</td>
+                    <td class="notes">{{ user.total_note_edits }}</td>
+                    <td class="totalEdits"><a href="{{ user.post_edits_url }}" target="_blank">{{ user.post_edits }}</a></td>
+                    <td class="lastEdit" data-order="{{ user.last_edit_dt | days_ago }}">{{ user.last_edit_dt | days_ago_str }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </container>
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             window.DBPromotions.initialize();
