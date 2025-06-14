@@ -7,13 +7,15 @@ class DBPromotions {
         this.init_table()
         this.init_values()
 
+
         console.log("Correctly initialized.")
     }
 
     init_table() {
         this.table = new DataTable("table#users", {
+            initComplete: function() { $("table#users").show(); },
             paging: true,
-            lengthMenu: [10, 25, 50, 75, 100],
+            lengthMenu: [10, 25, 50, 75, 100, 1000],
             responsive: true,
             layout: {
                 top3: {
