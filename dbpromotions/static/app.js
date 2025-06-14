@@ -76,7 +76,7 @@ class DBPromotions {
                 layout: "columns-1",
             },
             stateSave: true,
-            order: [[4, 'desc']],
+            order: [[3, 'desc']],
         });
     }
 

@@ -7,8 +7,9 @@ requires-python = ">=3.12"
 dependencies = [
     "backoff>=2.2.1",
     "danbooru",
- "flask>=3.1.1",
- "peewee>=3.18.1",
+    "flask>=3.1.1",
+    "gunicorn>=23.0.0",
+    "peewee>=3.18.1",
 ]
 
 

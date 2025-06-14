@@ -54,7 +54,7 @@ def get_last_updated() -> datetime:
 
 
 @server.route("/")
-def hello() -> str:
+def users() -> str:
     users = get_users()
 
     return render_template(

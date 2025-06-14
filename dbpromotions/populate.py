@@ -57,7 +57,7 @@ class IncompleteUserData(BaseModel):
         else:
             last_checked = user.last_checked
 
-        if last_checked and last_checked < (datetime.now() - timedelta(days=7)):  # noqa: DTZ005
+        if last_checked and last_checked < (datetime.now() - timedelta(days=4)):  # noqa: DTZ005
             logger.info(f"Populating missing values for user {self.id}.")
             self.seed_null_values()
         else:
@@ -66,6 +66,7 @@ class IncompleteUserData(BaseModel):
         user_data = self.model_dump(exclude_none=True)
         for key, value in user_data.items():
             setattr(user, key, value)
+        user.save()
 
     def seed_null_values(self) -> None:
         if self.recent_posts is None:
@@ -111,7 +112,7 @@ class IncompleteUserData(BaseModel):
     @computed_field  # type: ignore[prop-decorator]
     @property
     def is_deleted(self) -> bool:
-        return bool(re.match(r"user_\d+", self.name))
+        return bool(re.match(r"^user_\d+$", self.name))
 
     @staticmethod
     def from_danbooru_user(user: DanbooruUser) -> "IncompleteUserData":
