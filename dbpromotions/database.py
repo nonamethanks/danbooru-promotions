@@ -77,6 +77,10 @@ class PromotionCandidate(Model):
         return DanbooruPost.url_for(tags=f"user:{self.name} status:deleted date:{Defaults.RECENT_SINCE_STR}..")
 
     @property
+    def note_edits_url(self) -> str:
+        return f"https://danbooru.donmai.us/note_versions?search[updater_id]={self.id}"
+
+    @property
     def total_delete_ratio(self) -> int:
         if self.total_posts == 0:
             return 0

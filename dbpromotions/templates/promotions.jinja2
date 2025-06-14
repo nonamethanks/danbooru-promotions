@@ -74,7 +74,7 @@
                     <td class="recentUploaded"><a href="{{ user.recent_posts_url }}" target="_blank">{{ user.recent_posts }}</a></td>
                     <td class="recentDeleted"><a href="{{ user.recent_deleted_posts_url }}" target="_blank">{{ user.recent_deleted_posts }}</a></td>
                     <td class="recentRatio">{{ user.html_recent_deletion_ratio }}</td>
-                    <td class="notes">{{ user.total_note_edits }}</td>
+                    <td class="totalNotes"><a href="{{ user.note_edits_url }}" target="_blank">{{ user.total_note_edits }}</a></td>
                     <td class="totalEdits"><a href="{{ user.post_edits_url }}" target="_blank">{{ user.post_edits }}</a></td>
                     <td class="lastEdit" data-order="{{ user.last_edit_dt | days_ago }}">{{ user.last_edit_dt | days_ago_str }}</td>
                 </tr>

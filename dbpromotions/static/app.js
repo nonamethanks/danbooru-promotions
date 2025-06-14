@@ -65,7 +65,7 @@ class DBPromotions {
                                 label: '2. Translators for Builder (>2000 notes)',
                                 // eslint-disable-next-line no-unused-vars
                                 value: function (rowData, rowIdx) {
-                                    return parseInt(rowData[9]) > 2000 && rowData[1].display !== "Builder";
+                                    return parseInt($(rowData[9]).text()) > 2000 && rowData[1].display !== "Builder";
                                 }
                             },
                             {
