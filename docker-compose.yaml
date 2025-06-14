@@ -1,0 +1,9 @@
+services:
+  dbpromotions:
+    build:
+      context: .
+    restart: unless-stopped
+    ports:
+      - 0.0.0.0:8022:8022
+    volumes:
+      - ./data/users.sqlite:/app/data/users.sqlite

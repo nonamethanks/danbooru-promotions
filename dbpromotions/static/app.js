@@ -12,6 +12,39 @@ class DBPromotions {
 
     init_table() {
         this.table = new DataTable("table#users", {
+            paging: true,
+            lengthMenu: [10, 25, 50, 75, 100],
+            responsive: true,
+            layout: {
+                top3: {
+                    searchPanes: {
+                        columns: [1, 6],  // Specifies which columns to include in the search panes
+                        controls: false,
+                        dtOpts: {
+                            select: {
+                                style: 'multi'
+                            }
+                        }
+                    }
+                },
+                top2Start: 'pageLength',
+                top2End: 'search',
+                topStart: 'info',
+                topEnd: 'paging',
+                bottomStart: 'pageLength',
+                bottomEnd: 'search',
+                bottom2Start: 'info',
+                bottom2End: 'paging'
+            },
+            fixedHeader: {
+                header: true,
+                footer: true,
+            },
+            searchPanes: {
+                viewTotal: true
+            },
+            stateSave: true,
+            order: [[3, 'desc']],
             columnDefs: [
                 {
                     targets: [6],
@@ -44,39 +77,6 @@ class DBPromotions {
                     },
                 },
             ],
-            paging: false,
-            responsive: true,
-                layout: {
-                    top1: {
-                        info: {
-                            text: 'Showing _TOTAL_ users'
-                        }
-                    },
-                    top2: {
-                        searchPanes: {
-                            columns: [1, 6],  // Specifies which columns to include in the search panes
-                            controls: false,
-                            dtOpts: {
-                                select: {
-                                    style: 'multi'
-                                }
-                            }
-                        }
-                    },
-                    topStart: null,
-                    topEnd: null,
-                    bottomStart: null,
-                    bottomEnd: null,
-            },
-            fixedHeader: {
-                header: true,
-                footer: true
-            },
-            searchPanes: {
-                layout: "columns-1",
-            },
-            stateSave: true,
-            order: [[3, 'desc']],
         });
     }
 
