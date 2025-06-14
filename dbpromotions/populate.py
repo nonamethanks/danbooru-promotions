@@ -306,7 +306,7 @@ def seed_missing_data(user_map_by_name: dict[str, IncompleteUserData]) -> dict[i
 
     processed = 0
 
-    for index, user_data in enumerate(user_map_by_name.values()):
+    for user_data in user_map_by_name.values():
         if user_data.id:
             user_data.save_to_db()
             processed += 1
@@ -315,8 +315,7 @@ def seed_missing_data(user_map_by_name: dict[str, IncompleteUserData]) -> dict[i
         else:
             missing_ids.append(user_data)
 
-    for index, missing_id in enumerate(missing_ids):
-        logger.info(f"Fetching ID for user {missing_id.name}, {index+1}/{len(missing_ids)}")
+    for missing_id in missing_ids:
         user, = DanbooruUser.get(**{"search[name]": missing_id.name})
         user_data = IncompleteUserData(**user.model_dump(exclude_none=True))
         user_data.save_to_db()
