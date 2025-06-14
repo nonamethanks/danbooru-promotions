@@ -1,0 +1,93 @@
+:root {
+    --color-bad: #ffcdd2;
+    --color-warning: #ffffbf;
+    --color-ok: #BDFDBD;
+    --color-builder: #c797ff;
+    --color-gold: #ead084;
+    --color-platinum: #ababbc;
+    --color-member: #009be6;
+}
+
+body {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: sans-serif;
+}
+
+@media only screen and (max-width: 1500px) {
+    body {
+        padding-top: 80px;
+    }
+}
+
+h1,
+h2,
+.small {
+    text-align: center;
+}
+
+.small {
+    font-size: smaller;
+}
+
+table {
+    border-collapse: collapse;
+    margin: 25px auto;
+    font-size: 0.9em;
+    min-width: 400px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+}
+
+table,
+th,
+td {
+    border: 1px solid black;
+    text-align: center;
+}
+
+table th,
+table td {
+    padding: 12px 15px;
+}
+
+.username a {
+    font-weight: bold;
+    color: black;
+}
+
+
+.builder .username  {
+    background-color: var(--color-builder);
+}
+
+.gold .username {
+    background-color: var(--color-gold);
+}
+
+.platinum .username {
+    background-color: var(--color-platinum);
+}
+
+.member .username {
+    background-color: var(--color-member);
+}
+
+.banned .username {
+    background-color: lightcoral ;
+}
+
+.deleted .username {
+    background-color: lightgray ;
+}
+
+.sticky-widget {
+    position: fixed;
+    right: 1rem;
+    top: 4rem;
+    transform: translateY(-50%);
+    z-index: 1000;
+    padding: 20px;
+    background-color: white;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}

@@ -1,0 +1,58 @@
+{% import "user_macros.jinja2" as user_macros %}
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Promotion Candidates</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tablesort/5.2.1/tablesort.min.js"
+        integrity="sha512-F/gIMdDfda6OD2rnzt/Iyp2V9JLHlFQ+EUyixDg9+rkwjqgW1snpkpx7FD5FV1+gG2fmFj7I3r6ReQDUidHelA==" crossorigin="anonymous"
+        referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tablesort/5.2.1/sorts/tablesort.number.min.js"
+        integrity="sha512-dRD755QRxlybm0h3LXXIGrFcjNakuxW3reZqnPtUkMv6YsSWoJf+slPjY5v4lZvx2ss+wBZQFegepmA7a2W9eA==" crossorigin="anonymous"
+        referrerpolicy="no-referrer"></script>
+    <link href="https://cdn.jsdelivr.net/npm/tablesort@5.6.0/tablesort.min.css" rel="stylesheet">
+    <link href="{{ url_for("static", filename="app.css" ) }}" rel="stylesheet">
+    <script src="{{ url_for("static", filename="app.js" ) }}"></script>
+
+    <meta name="contrib_max_del_perc" content="{{contrib_max_del_perc}}">
+    <meta name="builder_max_del_perc" content="{{builder_max_del_perc}}">
+    <meta name="max_deleted_bad" content="{{max_deleted_bad}}">
+    <meta name="max_deleted_warning" content="{{max_deleted_warning}}">
+</head>
+
+<body>
+    <div class="sticky-widget">
+        <label for="minDays">Show users active within the last </label>
+        <input type="number" id="minDays" min="0" style="width: 60px;" value="60" />
+        <label> days</label>
+        <div id="hiddenCount" style="margin-top:8px; color:#b00; font-weight:bold; display:none;"></div>
+        <div id="ignoredCount" style="margin-top:8px; color:#b00; font-weight:bold; display:none;"></div>
+        <div style="margin-top:8px;">
+            <input type="checkbox" id="showIgnored" checked="false" />
+            <label for="showIgnored">Show ignored users</label>
+        </div>
+    </div>
+
+    <h1>Promotion Candidates for Danbooru</h2>
+        <p class="small">Last updated on {{last_updated.strftime("%Y-%m-%d")}} ({{ last_updated | days_ago }}).</p>
+        <p class="small">"Hide" will ignore a user across all reports for one month.</a></p>
+
+        <h2>Builders for Contributor</h2>
+        {{ user_macros.user_table(builder_to_contributor, "contrib-builder") }}
+
+        <h2>Non-Builders for Contributor</h2>
+        {{ user_macros.user_table(builder_to_contributor, "contrib-member") }}
+
+        <h2>Other Users for Promotion</h2>
+        {{ user_macros.user_table(builder_to_contributor, "builder") }}
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                window.DBPromotions.initialize();
+            });
+        </script>
+</body>
+
+</html>

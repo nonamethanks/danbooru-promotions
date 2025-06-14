@@ -1,0 +1,14 @@
+{
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.autopep8",
+    },
+    "mypy.runUsingActiveInterpreter": true,
+    "editor.codeActionsOnSave": {
+        "source.fixAll": "explicit",
+        "source.fixAll.eslint": "always",
+        "source.organizeImports": "always"
+    },
+    "eslint.validate": [
+        "javascript"
+    ],
+}
