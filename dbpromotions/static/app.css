@@ -39,37 +39,29 @@ table {
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
 }
 
-table,
-th,
-td {
-    border: 1px solid black;
-    text-align: center;
+table, td, th {
+    text-align: center !important;
 }
 
-table th,
-table td {
-    padding: 12px 15px;
-}
 
 .username a {
     font-weight: bold;
     color: black;
 }
 
-
-.builder .username  {
+.builder .level  {
     background-color: var(--color-builder);
 }
 
-.gold .username {
+.gold .level {
     background-color: var(--color-gold);
 }
 
-.platinum .username {
+.platinum .level {
     background-color: var(--color-platinum);
 }
 
-.member .username {
+.member .level {
     background-color: var(--color-member);
 }
 
@@ -90,4 +82,11 @@ table td {
     padding: 20px;
     background-color: white;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+
+table input {
+    width: 100%;
+    padding: 3px;
+    box-sizing: border-box;
 }

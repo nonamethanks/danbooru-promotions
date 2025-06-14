@@ -53,6 +53,5 @@ def hello() -> str:
         builder_max_del_perc=BUILDER_MAX_DEL_PERC,
         max_deleted_bad=CONTRIB_MAX_DEL_COUNT,
         max_deleted_warning=CONTRIB_RISKY_DEL_COUNT,
-
-        builder_to_contributor=users,
+        users=users,
     )

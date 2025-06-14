@@ -83,16 +83,16 @@ class PromotionCandidate(Model):
         return (self.recent_deleted_posts / self.recent_posts) * 100  # type: ignore[return-value]
 
     @property
-    def html_sort_ratio(self) -> int:
-        return self.delete_ratio if self.recent_posts else 1000
-
-    @property
     def html_deletion_ratio(self) -> str:
         return f"{self.delete_ratio:.2f}"
 
     @property
     def last_edit_dt(self) -> datetime:
         return datetime.fromisoformat(self.last_edit_at)  # type: ignore[arg-type]
+
+    @property
+    def level_string(self) -> str:
+        return UserLevel.name_from_number(self.level)
 
 
 def init_database() -> None:
