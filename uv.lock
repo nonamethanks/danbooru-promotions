@@ -144,6 +144,7 @@ name = "dbpromotions"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
+    { name = "backoff" },
     { name = "danbooru" },
     { name = "flask" },
     { name = "peewee" },
@@ -160,6 +161,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "backoff", specifier = ">=2.2.1" },
     { name = "danbooru", git = "https://github.com/nonamethanks/python-danbooru.git" },
     { name = "flask", specifier = ">=3.1.1" },
     { name = "peewee", specifier = ">=3.18.1" },

@@ -1,4 +1,4 @@
-/* global DataTable */
+/* global DataTable, $ */
 
 class DBPromotions {
     initialize() {
@@ -12,43 +12,71 @@ class DBPromotions {
 
     init_table() {
         this.table = new DataTable("table#users", {
+            columnDefs: [
+                {
+                    targets: [6],
+                    searchPanes: {
+                        show: true,
+                        header: "Additional Filtering",
+                        options: [
+                            {
+                                label: '1. For Contrib (<4%, 50 recent)',
+                                // eslint-disable-next-line no-unused-vars
+                                value: function (rowData, rowIdx) {
+                                    return parseFloat(rowData[8]) < 4 && parseInt(rowData[3]) > 500 && parseInt($(rowData[6]).text()) > 50;
+                                }
+                            },
+                            {
+                                label: '2. Translators for Builder (>2000 notes)',
+                                // eslint-disable-next-line no-unused-vars
+                                value: function (rowData, rowIdx) {
+                                    return parseInt(rowData[9]) > 2000 && rowData[1].display !== "Builder";
+                                }
+                            },
+                            {
+                                label: '3. Editors for Builder (>5000 edits)',
+                                // eslint-disable-next-line no-unused-vars
+                                value: function (rowData, rowIdx) {
+                                    return parseInt($(rowData[10]).text()) > 5000 && rowData[1].display !== "Builder";
+                                }
+                            },
+                        ]
+                    },
+                },
+            ],
             paging: false,
             responsive: true,
-            layout: {
-                topEnd: null
+                layout: {
+                    top1: {
+                        info: {
+                            text: 'Showing _TOTAL_ users'
+                        }
+                    },
+                    top2: {
+                        searchPanes: {
+                            columns: [1, 6],  // Specifies which columns to include in the search panes
+                            controls: false,
+                            dtOpts: {
+                                select: {
+                                    style: 'multi'
+                                }
+                            }
+                        }
+                    },
+                    topStart: null,
+                    topEnd: null,
+                    bottomStart: null,
+                    bottomEnd: null,
             },
             fixedHeader: {
                 header: true,
                 footer: true
             },
-            saveState: true,
-            order: [[5, 'desc']],
-            // initComplete: function () {
-            //     this.api().columns().every(function () {
-            //         let column = this;
-            //         let title = column.footer().textContent;
-            //         if (!title) {
-            //             return
-            //         }
-
-            //         // Create input element
-            //         let input = document.createElement("input");
-            //         input.placeholder = title;
-            //         column.footer().replaceChildren(input);
-
-            //         // Event listener for user input
-            //         let range_columns = ["Level", "Uploads", "Recent Uploads", "Recent Deleted", "Recent %", "Notes", "Edits"]
-
-            //         input.addEventListener("keyup", () => {
-            //             if (column.search() !== input.value) {
-            //                 if (range_columns.includes(title)) {
-            //                     console.log(title)
-            //                 }
-            //                 column.search(input.value).draw();
-            //             }
-            //         });
-            //     });
-            // }
+            searchPanes: {
+                layout: "columns-1",
+            },
+            stateSave: true,
+            order: [[4, 'desc']],
         });
     }
 

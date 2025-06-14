@@ -15,6 +15,12 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/responsive/3.0.4/css/responsive.dataTables.min.css" />
     <script src="https://cdn.datatables.net/responsive/3.0.4/js/dataTables.responsive.min.js"></script>
 
+    <link rel="stylesheet" href="https://cdn.datatables.net/select/3.0.1/css/select.dataTables.min.css" />
+    <script src="https://cdn.datatables.net/select/3.0.1/js/dataTables.select.min.js"></script>
+
+    <link rel="stylesheet" href="https://cdn.datatables.net/searchpanes/2.3.3/css/searchPanes.dataTables.min.css" />
+    <script src="https://cdn.datatables.net/searchpanes/2.3.3/js/dataTables.searchPanes.min.js"></script>
+
     <link href="{{ url_for("static", filename="app.css" ) }}" rel="stylesheet">
     <script src="{{ url_for("static", filename="app.js" ) }}"></script>
 
@@ -31,8 +37,9 @@
     </div>
 
     <h1>Promotion Candidates for Danbooru</h2>
-    <p class="small">Last updated on {{last_updated.strftime("%Y-%m-%d")}} ({{ last_updated | days_ago }}).</p>
+    <p class="small">Only users with edits within the last month are shown. Each user is updated at least once a week.</p>
     <p class="small">"Hide" will ignore a user across all reports for one month.</a></p>
+
     <table id="users" class="cell-border order-column compact stripe hover ">
         <thead>
             <tr>
@@ -41,6 +48,8 @@
                 <th>Level</th>
                 <th>User</th>
                 <th>Uploads</th>
+                <th>Deleted Uploads</th>
+                <th>Total %</th>
                 <th>Recent Uploads</th>
                 <th>Recent Deleted</th>
                 <th>Recent %</th>
@@ -58,12 +67,14 @@
                 <td class="level" data-order="{{ user.level }}">{{ user.level_string|title }}</td>
                 <td class="username"><a href="{{ user.url }}" target="_blank">{{ user.name }}</a></td>
                 <td class="totalUploaded">{{user.total_posts}}</td>
+                <td class="totalDeleted">{{user.total_deleted_posts}}</td>
+                <td class="totalRatio">{{ user.html_total_deletion_ratio }}</td>
                 <td class="recentUploaded"><a href="{{ user.recent_posts_url }}" target="_blank">{{ user.recent_posts }}</a></td>
                 <td class="recentDeleted"><a href="{{ user.recent_deleted_posts_url }}" target="_blank">{{ user.recent_deleted_posts }}</a></td>
-                <td class="recentRatio">{{ user.html_deletion_ratio }}</td>
+                <td class="recentRatio">{{ user.html_recent_deletion_ratio }}</td>
                 <td class="notes">{{ user.total_note_edits }}</td>
                 <td class="totalEdits"><a href="{{ user.post_edits_url }}" target="_blank">{{ user.post_edits }}</a></td>
-                <td class="lastEdit" data-order="{{ user.last_edit_dt.timestamp() }}">{{ user.last_edit_dt | days_ago }}</td>
+                <td class="lastEdit" data-order="{{ user.last_edit_dt | days_ago }}">{{ user.last_edit_dt | days_ago_str }}</td>
             </tr>
             {% endfor %}
         </tbody>

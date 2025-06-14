@@ -4,7 +4,12 @@ version = "0.1.0"
 description = "Show potential promotions for danbooru."
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = ["danbooru", "flask>=3.1.1", "peewee>=3.18.1"]
+dependencies = [
+    "backoff>=2.2.1",
+    "danbooru",
+ "flask>=3.1.1",
+ "peewee>=3.18.1",
+]
 
 
 [tool.ruff]

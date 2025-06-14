@@ -1,6 +1,7 @@
 import re
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 
+import peewee
 from danbooru.models.post_counts import DanbooruPostCounts
 from danbooru.models.post_version import DanbooruPostVersion
 from danbooru.models.user import DanbooruUser
@@ -29,7 +30,8 @@ class IncompleteUserData(BaseModel):
     recent_deleted_posts: int | None = None
 
     post_edits: int | None = None
-    last_edit_at: datetime | None = None
+
+    last_edit: datetime | None = None
 
     total_note_edits: int | None = None
     # recent_note_edits: int | None = None
@@ -47,26 +49,54 @@ class IncompleteUserData(BaseModel):
     # recent_forum_posts: int | None = None
 
     def save_to_db(self) -> None:
-        self.seed_null_values()
-        user = PromotionCandidate(**self.model_dump(exclude_none=True))
-        user.save()
+        try:
+            user = PromotionCandidate.get(self.id)
+        except peewee.DoesNotExist:
+            user = PromotionCandidate(id=self.id)
+            last_checked = None
+        else:
+            last_checked = user.last_checked
+
+        if last_checked and last_checked < (datetime.now() - timedelta(days=7)):  # noqa: DTZ005
+            logger.info(f"Populating missing values for user {self.id}.")
+            self.seed_null_values()
+        else:
+            logger.info(f"User {self.id} was already checked this week.")
+
+        user_data = self.model_dump(exclude_none=True)
+        for key, value in user_data.items():
+            setattr(user, key, value)
 
     def seed_null_values(self) -> None:
+        if self.recent_posts is None:
+            if self.total_posts == 0:
+                self.recent_posts = 0
+            else:
+                count_search = DanbooruPostCounts.get(tags=f"user:{self.name} date:{Defaults.RECENT_SINCE_STR}..",
+                                                      cache=True)  # type: ignore[var-annotated] # one fucking job
+                self.recent_posts = count_search.count
+
         if self.total_deleted_posts is None:
-            count_search = DanbooruPostCounts.get(tags=f"status:deleted user:{self.name}",
-                                                  cache=True)  # type: ignore[var-annotated] # one fucking job
-            self.total_deleted_posts = count_search.count
+            if self.total_posts == 0:
+                self.total_deleted_posts = 0
+            else:
+                count_search = DanbooruPostCounts.get(tags=f"status:deleted user:{self.name}",
+                                                      cache=True)  # type: ignore[var-annotated] # one fucking job
+                self.total_deleted_posts = count_search.count  # type: ignore[attr-defined]
 
         if self.recent_deleted_posts is None:
-            count_search = DanbooruPostCounts.get(
-                tags=f"status:deleted user:{self.name} date:{Defaults.RECENT_SINCE_STR}..",
-                cache=True,
-            )  # type: ignore[var-annotated] # one fucking job
-            self.total_deleted_posts = count_search.count      # type: ignore[attr-defined]
+            if self.total_posts == 0 or self.recent_posts == 0:
+                self.recent_deleted_posts = 0
+            else:
+                count_search = DanbooruPostCounts.get(
+                    tags=f"status:deleted user:{self.name} date:{Defaults.RECENT_SINCE_STR}..",
+                    cache=True,
+                )  # type: ignore[var-annotated] # one fucking job
+                self.recent_deleted_posts = count_search.count      # type: ignore[attr-defined]
 
-        if self.last_edit_at is None:
+        if self.last_edit is None:
             last_version, = DanbooruPostVersion.get(updater_id=self.id, cache=True, limit=1)
-            self.last_edit_at = last_version.updated_at
+            self.last_edit = last_version.updated_at
 
     @field_validator("name", mode="after")
     @classmethod
@@ -106,7 +136,7 @@ def get_recent_non_contributor_uploaders() -> list[IncompleteUserData]:
         },
     }
     recent_uploader_data = DanbooruPostReport.get(**params)
-    return [IncompleteUserData(name=r.uploader, recent_posts=r.posts) for r in recent_uploader_data]
+    return [IncompleteUserData(name=r.uploader, recent_posts=r.posts, recently_active=True) for r in recent_uploader_data]
 
 
 def get_recent_non_contributor_uploaders_deleted() -> list[IncompleteUserData]:
@@ -121,12 +151,25 @@ def get_recent_non_contributor_uploaders_deleted() -> list[IncompleteUserData]:
         "tags": "status:deleted",
     }
     recent_uploader_data = DanbooruPostReport.get(**params)
-    return [IncompleteUserData(name=r.uploader, recent_deleted_posts=r.posts) for r in recent_uploader_data]
+    return [IncompleteUserData(name=r.uploader, recent_deleted_posts=r.posts, recently_active=True) for r in recent_uploader_data]
+
+
+def get_non_contributor_uploaders_deleted() -> list[IncompleteUserData]:
+    params = {
+        "group": "uploader",
+        "group_limit": 1000,
+        "uploader": {
+            "level": "<35",
+        },
+        "tags": "status:deleted",
+    }
+    uploader_data = DanbooruPostReport.get(**params)
+    return [IncompleteUserData(name=r.uploader, total_deleted_posts=r.posts) for r in uploader_data]
 
 
 def get_non_contributor_uploaders() -> list[IncompleteUserData]:
     users = DanbooruUser.get_all(
-        post_upload_count=">10",
+        post_upload_count=f">{Defaults.MIN_UPLOADS}",
         order="post_upload_count",
         level="<35",
     )
@@ -206,11 +249,12 @@ def get_biggest_non_builder_appealers() -> list[IncompleteUserData]:
     return [IncompleteUserData(name=r.creator, artist_edits=r.appeals) for r in recent_uploader_data]
 
 
-def merge_map(user_map: dict[str, IncompleteUserData], user_data: list[IncompleteUserData]) -> None:
+def merge_map(user_map: dict[str, IncompleteUserData], user_data: list[IncompleteUserData], add_missing: bool = True) -> None:
     for new_user_data in user_data:
         old_user_data = user_map.get(new_user_data.name)
         if not old_user_data:
-            user_map[new_user_data.name] = new_user_data
+            if add_missing:
+                user_map[new_user_data.name] = new_user_data
             continue
 
         new_data = old_user_data.model_dump(exclude_none=True) | new_user_data.model_dump(exclude_none=True)
@@ -224,19 +268,23 @@ def get_known_users() -> dict[int, IncompleteUserData]:
 
 
 def get_user_map_by_name() -> dict[str, IncompleteUserData]:
-    user_map_by_name: dict[str, IncompleteUserData] = {}
-
-    logger.info("Fetching recent uploaders...")
-    merge_map(user_map_by_name, get_recent_non_contributor_uploaders())
-
-    logger.info("Fetching recent deleted posts...")
-    merge_map(user_map_by_name, get_recent_non_contributor_uploaders_deleted())
+    logger.info("Fetching biggest uploaders...")
+    user_map_by_name = {u.name: u for u in get_non_contributor_uploaders()}
 
     logger.info("Fetching biggest gardeners...")
     merge_map(user_map_by_name, get_biggest_non_builder_gardeners())
 
     logger.info("Fetching biggest translators...")
     merge_map(user_map_by_name, get_biggest_non_builder_translators())
+
+    logger.info("Fetching recent uploaders...")
+    merge_map(user_map_by_name, get_recent_non_contributor_uploaders(), add_missing=False)
+
+    logger.info("Fetching deleted posts...")
+    merge_map(user_map_by_name, get_non_contributor_uploaders_deleted(), add_missing=False)
+
+    logger.info("Fetching recent deleted posts...")
+    merge_map(user_map_by_name, get_recent_non_contributor_uploaders_deleted(), add_missing=False)
 
     # TODO: the following won't work because they're only recent, but I want historical data. IDK how to get it.
     # Maybe bigquery? or just individual user fetching.
@@ -254,28 +302,20 @@ def get_user_map_by_name() -> dict[str, IncompleteUserData]:
     # logger.info("Fetching biggest appealers...")
     # merge_map(incomplete_map_by_name, get_biggest_non_builder_appealers())
 
-    logger.info("Fetching biggest non-contrib uploaders...")
-    for uploader_data in get_non_contributor_uploaders():
-        old_user_data = user_map_by_name.get(uploader_data.name)
-        if not old_user_data:
-            assert uploader_data.total_posts
-            if uploader_data.total_posts > Defaults.MIN_UPLOADS:
-                user_map_by_name[uploader_data.name] = uploader_data
-            continue
-
-        new_data = old_user_data.model_dump(exclude_none=True) | uploader_data.model_dump(exclude_none=True)
-        user_map_by_name[old_user_data.name] = IncompleteUserData(**new_data)
-
     return user_map_by_name
 
 
-def seed_ids(user_map_by_name: dict[str, IncompleteUserData]) -> dict[int, IncompleteUserData]:
+def seed_missing_data(user_map_by_name: dict[str, IncompleteUserData]) -> dict[int, IncompleteUserData]:
     user_map_by_id: dict[int, IncompleteUserData] = {}
     missing_ids: list[IncompleteUserData] = []
 
-    for user_data in user_map_by_name.values():
+    processed = 0
+
+    for index, user_data in enumerate(user_map_by_name.values()):
         if user_data.id:
             user_data.save_to_db()
+            processed += 1
+            logger.info(f"At user {processed} of {len(user_map_by_name)}")
             user_map_by_id[user_data.id] = user_data
         else:
             missing_ids.append(user_data)
@@ -285,6 +325,8 @@ def seed_ids(user_map_by_name: dict[str, IncompleteUserData]) -> dict[int, Incom
         user, = DanbooruUser.get(**{"search[name]": missing_id.name})
         user_data = IncompleteUserData(**user.model_dump(exclude_none=True))
         user_data.save_to_db()
+        processed += 1
+        logger.info(f"At user {processed} of {len(user_map_by_name)}")
         user_map_by_id[user.id] = user_data
 
     return user_map_by_id
@@ -294,7 +336,7 @@ def populate_database() -> None:
     init_database()
     user_map_by_name = get_user_map_by_name()
     logger.info(f"Processing {len(user_map_by_name)} users.")
-    user_map_by_id = seed_ids(user_map_by_name)
+    seed_missing_data(user_map_by_name)
 
 
 if __name__ == "__main__":

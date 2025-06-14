@@ -5,6 +5,7 @@ from danbooru.user_level import UserLevel
 from flask import Flask, render_template
 from jinja2 import StrictUndefined
 
+from dbpromotions import Defaults
 from dbpromotions.database import PromotionCandidate
 
 server = Flask(__name__)
@@ -17,10 +18,17 @@ BUILDER_MAX_DEL_PERC = 15
 
 
 @server.template_filter("days_ago")
-def days_ago(dt: datetime) -> str:
-    days_ago = (datetime.now(tz=UTC) - dt).days
+def days_ago_int(dt: datetime) -> int:
+    return max((datetime.now(tz=UTC) - dt).days, 0)
+
+
+@server.template_filter("days_ago_str")
+def days_ago_str(dt: datetime) -> str:
+    days_ago = days_ago_int(dt)
     if days_ago == 0:
         days_ago_str = "today"
+    elif days_ago < 7:
+        days_ago_str = "this week"
     elif days_ago > 365:
         days_ago_str = f"{days_ago//365} years ago"
     elif days_ago > 30:
@@ -32,14 +40,17 @@ def days_ago(dt: datetime) -> str:
 
 
 def get_users() -> list[PromotionCandidate]:
-    return PromotionCandidate.select().where(PromotionCandidate.level < UserLevel.number_from_name("contributor"))
+    return PromotionCandidate.select() \
+        .where(PromotionCandidate.level < UserLevel.number_from_name("contributor")) \
+        .where(PromotionCandidate.last_edit > Defaults.RECENT_SINCE)
 
 
 def get_last_updated() -> datetime:
-    dt = PromotionCandidate.select(PromotionCandidate.last_checked) \
+    dt: datetime = PromotionCandidate.select(PromotionCandidate.last_checked) \
         .order_by(PromotionCandidate.last_checked.desc())             \
         .get().last_checked
-    return datetime.fromisoformat(dt)
+    dt = dt.replace(tzinfo=UTC)
+    return dt
 
 
 @server.route("/")
