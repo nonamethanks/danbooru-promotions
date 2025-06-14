@@ -57,9 +57,9 @@ class IncompleteUserData(BaseModel):
         else:
             last_checked = user.last_checked
 
-        if last_checked and last_checked < (datetime.now() - timedelta(days=4)):  # noqa: DTZ005
+        if last_checked and last_checked < (datetime.now() - timedelta(days=3)):  # noqa: DTZ005
             logger.info(f"Populating missing values for user {self.id}.")
-            self.seed_null_values()
+            self.populate_other_values()
         else:
             logger.info(f"User {self.id} was already checked this week.")
 
@@ -68,25 +68,20 @@ class IncompleteUserData(BaseModel):
             setattr(user, key, value)
         user.save()
 
-    def seed_null_values(self) -> None:
-        if self.recent_posts is None:
-            if self.total_posts == 0:
-                self.recent_posts = 0
-            else:
-                count_search = DanbooruPostCounts.get(tags=f"user:{self.name} date:{Defaults.RECENT_SINCE_STR}..",
-                                                      cache=True)  # type: ignore[var-annotated] # one fucking job
-                self.recent_posts = count_search.count
+    def populate_other_values(self) -> None:
+        if self.total_posts == 0:
+            self.recent_posts = 0
+            self.total_deleted_posts = 0
+        else:
+            count_search = DanbooruPostCounts.get(tags=f"user:{self.name} date:{Defaults.RECENT_SINCE_STR}..",
+                                                  cache=True)  # type: ignore[var-annotated] # one fucking job
+            self.recent_posts = count_search.count
 
-        if self.total_deleted_posts is None:
-            if self.total_posts == 0:
-                self.total_deleted_posts = 0
-            else:
-                count_search = DanbooruPostCounts.get(tags=f"status:deleted user:{self.name}",
-                                                      cache=True)  # type: ignore[var-annotated] # one fucking job
-                self.total_deleted_posts = count_search.count  # type: ignore[attr-defined]
+            count_search = DanbooruPostCounts.get(tags=f"status:deleted user:{self.name}",
+                                                  cache=True)  # type: ignore[var-annotated] # one fucking job
+            self.total_deleted_posts = count_search.count  # type: ignore[attr-defined]
 
-        if self.recent_deleted_posts is None:
-            if self.total_posts == 0 or self.recent_posts == 0:
+            if self.recent_posts == 0:
                 self.recent_deleted_posts = 0
             else:
                 count_search = DanbooruPostCounts.get(
@@ -95,9 +90,8 @@ class IncompleteUserData(BaseModel):
                 )  # type: ignore[var-annotated] # one fucking job
                 self.recent_deleted_posts = count_search.count      # type: ignore[attr-defined]
 
-        if self.last_edit is None:
-            last_version, = DanbooruPostVersion.get(updater_id=self.id, cache=True, limit=1)
-            self.last_edit = last_version.updated_at
+        last_version, = DanbooruPostVersion.get(updater_id=self.id, cache=True, limit=1)
+        self.last_edit = last_version.updated_at
 
     @field_validator("name", mode="after")
     @classmethod

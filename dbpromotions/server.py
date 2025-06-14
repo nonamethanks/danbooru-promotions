@@ -26,17 +26,19 @@ def days_ago_int(dt: datetime) -> int:
 def days_ago_str(dt: datetime) -> str:
     days_ago = days_ago_int(dt)
     if days_ago == 0:
-        days_ago_str = "today"
+        return "today"
     elif days_ago < 7:
-        days_ago_str = "this week"
-    elif days_ago > 365:
-        days_ago_str = f"{days_ago//365} years ago"
-    elif days_ago > 30:
-        days_ago_str = f"{days_ago//30} months ago"
+        return "this week"
+    elif days_ago < 14:
+        return "2 weeks ago"
+    elif days_ago < 21:
+        return "3 weeks ago"
+    elif days_ago/31 <= 1:
+        return "this month"
+    elif days_ago/31 < 12:
+        return f"{days_ago//30 + 1} months ago"
     else:
-        days_ago_str = f"{days_ago} days ago"
-
-    return days_ago_str
+        return f"{days_ago//365 + 1} years ago"
 
 
 def get_users() -> list[PromotionCandidate]:
