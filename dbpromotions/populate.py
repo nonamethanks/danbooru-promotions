@@ -59,10 +59,10 @@ class IncompleteUserData(BaseModel):
             last_checked = user.last_checked
 
         if last_checked and last_checked > (datetime.now() - timedelta(days=3)):  # noqa: DTZ005
+            logger.info(f"User {self.id} was already checked this week.")
+        else:
             logger.info(f"Populating missing values for user {self.id}.")
             self.populate_other_values()
-        else:
-            logger.info(f"User {self.id} was already checked this week.")
 
         user_data = self.model_dump(exclude_none=True)
         for key, value in user_data.items():
