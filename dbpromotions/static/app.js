@@ -55,24 +55,24 @@ class DBPromotions {
                         header: "Additional Filtering",
                         options: [
                             {
-                                label: '1. For Contrib (<4%, 500 ups, 50 recent)',
+                                label: '1. Users For Contrib (<4%, 500 ups, 50 recent)',
                                 // eslint-disable-next-line no-unused-vars
                                 value: function (rowData, rowIdx) {
-                                    return parseFloat(rowData[8]) < 4 && parseInt(rowData[3]) > 500 && parseInt($(rowData[6]).text()) > 50;
+                                    return parseFloat(rowData[9]) < 4 && parseInt(rowData[4]) > 500 && parseInt($(rowData[7]).text()) > 50;
                                 }
                             },
                             {
                                 label: '2. Translators for Builder (>2000 notes)',
                                 // eslint-disable-next-line no-unused-vars
                                 value: function (rowData, rowIdx) {
-                                    return parseInt($(rowData[9]).text()) > 2000 && rowData[1].display !== "Builder";
+                                    return parseInt($(rowData[10]).text()) > 2000 && rowData[1].display !== "Builder";
                                 }
                             },
                             {
                                 label: '3. Gardeners for Builder (>5000 edits)',
                                 // eslint-disable-next-line no-unused-vars
                                 value: function (rowData, rowIdx) {
-                                    return parseInt($(rowData[10]).text()) > 5000 && rowData[1].display !== "Builder";
+                                    return parseInt($(rowData[11]).text()) > 5000 && rowData[1].display !== "Builder";
                                 }
                             },
                         ]
