@@ -52,6 +52,7 @@ def get_last_updated() -> datetime:
 @server.route("/")
 def users() -> str:
     users = get_active_users()
+    users = [u for u in users if u.should_be_considered]
 
     return render_template(
         "promotions.jinja2",

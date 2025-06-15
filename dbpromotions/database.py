@@ -114,6 +114,17 @@ class PromotionCandidate(Model):
         dt = dt.replace(tzinfo=UTC)
         return dt
 
+    @property
+    def should_be_considered(self) -> bool:
+        if self.total_posts > Defaults.MIN_UPLOADS:
+            return True
+
+        if self.post_edits > Defaults.MIN_EDITS or self.total_note_edits > Defaults.MIN_NOTES:  # noqa: SIM102
+            if self.level < UserLevel.number_from_name("builder"):
+                return True
+
+        return False
+
 
 def init_database() -> None:
     logger.debug("Initializing database...")
