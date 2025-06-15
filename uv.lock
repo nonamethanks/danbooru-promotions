@@ -145,6 +145,7 @@ version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
     { name = "backoff" },
+    { name = "click" },
     { name = "danbooru" },
     { name = "flask" },
     { name = "gunicorn" },
@@ -163,6 +164,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "backoff", specifier = ">=2.2.1" },
+    { name = "click", specifier = ">=8.2.1" },
     { name = "danbooru", git = "https://github.com/nonamethanks/python-danbooru.git" },
     { name = "flask", specifier = ">=3.1.1" },
     { name = "gunicorn", specifier = ">=23.0.0" },

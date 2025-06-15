@@ -6,7 +6,7 @@ from flask import Flask, render_template
 from jinja2 import StrictUndefined
 
 from dbpromotions import Defaults
-from dbpromotions.database import PromotionCandidate
+from dbpromotions.database import PromotionCandidate, get_active_users
 
 server = Flask(__name__)
 server.jinja_env.undefined = StrictUndefined
@@ -41,12 +41,6 @@ def days_ago_str(dt: datetime) -> str:
         return f"{days_ago//365 + 1} years ago"
 
 
-def get_users() -> list[PromotionCandidate]:
-    return PromotionCandidate.select() \
-        .where(PromotionCandidate.level < UserLevel.number_from_name("contributor")) \
-        .where(PromotionCandidate.last_edit > Defaults.RECENT_SINCE)
-
-
 def get_last_updated() -> datetime:
     dt: datetime = PromotionCandidate.select(PromotionCandidate.last_checked) \
         .order_by(PromotionCandidate.last_checked.desc())             \
@@ -57,7 +51,7 @@ def get_last_updated() -> datetime:
 
 @server.route("/")
 def users() -> str:
-    users = get_users()
+    users = get_active_users()
 
     return render_template(
         "promotions.jinja2",

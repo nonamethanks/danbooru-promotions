@@ -6,12 +6,12 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "backoff>=2.2.1",
+    "click>=8.2.1",
     "danbooru",
     "flask>=3.1.1",
     "gunicorn>=23.0.0",
     "peewee>=3.18.1",
 ]
-
 
 [tool.ruff]
 target-version = "py311"

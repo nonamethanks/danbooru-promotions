@@ -121,3 +121,9 @@ def init_database() -> None:
     with user_database:
         logger.debug("Initializing tables...")
         user_database.create_tables([PromotionCandidate])
+
+
+def get_active_users() -> list[PromotionCandidate]:
+    return PromotionCandidate.select() \
+        .where(PromotionCandidate.level < UserLevel.number_from_name("contributor")) \
+        .where(PromotionCandidate.last_edit > Defaults.RECENT_SINCE)

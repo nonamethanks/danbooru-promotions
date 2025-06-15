@@ -1,5 +1,6 @@
 import re
 from datetime import UTC, datetime, timedelta
+from itertools import batched
 
 import peewee
 from danbooru.models.post_counts import DanbooruPostCounts
@@ -67,6 +68,14 @@ class IncompleteUserData(BaseModel):
         for key, value in user_data.items():
             setattr(user, key, value)
         user.save()
+
+    @classmethod
+    def update_from_danbooru_user(cls, user: DanbooruUser) -> None:
+        db_user = PromotionCandidate.get(user.id)
+        user_data = IncompleteUserData.from_danbooru_user(user)
+        for key, value in user_data.model_dump(exclude_none=True).items():
+            setattr(db_user, key, value)
+        db_user.save()
 
     def populate_other_values(self) -> None:
         if self.total_posts == 0:
@@ -256,12 +265,6 @@ def merge_map(user_map: dict[str, IncompleteUserData], user_data: list[Incomplet
         user_map[old_user_data.name] = IncompleteUserData(**new_data)
 
 
-def get_known_users() -> dict[int, IncompleteUserData]:
-    known_users = PromotionCandidate.select().dicts()
-    known_user_data = {u["id"]: IncompleteUserData(**u) for u in known_users}
-    return known_user_data
-
-
 def get_user_map_by_name() -> dict[str, IncompleteUserData]:
     logger.info("Fetching biggest uploaders...")
     user_map_by_name = {u.name: u for u in get_non_contributor_uploaders()}
@@ -331,6 +334,19 @@ def populate_database() -> None:
     user_map_by_name = get_user_map_by_name()
     logger.info(f"Processing {len(user_map_by_name)} users.")
     seed_missing_data(user_map_by_name)
+
+
+def get_known_user_ids() -> set[int]:
+    known_users = PromotionCandidate.select(PromotionCandidate.id).dicts()
+    return {u["id"] for u in known_users}
+
+
+def refresh_levels() -> None:
+    user_ids = get_known_user_ids()
+    for user_batch in batched(user_ids, 100):
+        updated_users = DanbooruUser.get_all(id=",".join(map(str, user_batch)))
+        for user in updated_users:
+            IncompleteUserData.update_from_danbooru_user(user)
 
 
 if __name__ == "__main__":
