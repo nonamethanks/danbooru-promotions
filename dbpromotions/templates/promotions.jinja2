@@ -39,13 +39,11 @@
     <div id="prrrrrrrromotions2" class="prrrrrrrromotions"></div>
     <div id="container">
         <h1>Promotion Candidates for Danbooru</h2>
-        <p class="small">Only users with edits within the last month are shown. Each user is updated at least once a week.</p>
-        <!-- <p class="small">"Hide" will ignore a user across all reports for one month.</a></p> -->
+        <p class="small">Only users with edits within the last two months are shown. Each user is updated at least once a week.</p>
 
         <table id="users" class="cell-border order-column compact stripe hover" style="display: none">
             <thead>
                 <tr>
-                    <!-- <th>Hide</th> -->
                     <th>ID</th>
                     <th>Level</th>
                     <th>User</th>
@@ -65,7 +63,6 @@
             <tbody>
                 {% for user in users %}
                 <tr class="{{ user.html_classes }}" data-user-id="{{ user.id }}">
-                    <!-- <td><input type="checkbox" class="user-checkbox" data-user-id="{{ user.id }}"></td> -->
                     <td class="userid">{{ user.id }}</td>
                     <td class="level" data-order="{{ user.level }}">{{ user.level_string|title }}</td>
                     <td class="username"><a href="{{ user.url }}" target="_blank">{{ user.name }}</a></td>
