@@ -65,6 +65,10 @@ class PromotionCandidate(Model):
         return f"https://danbooru.donmai.us/users/{self.id}"
 
     @property
+    def promote_url(self) -> str:
+        return f"https://danbooru.donmai.us/admin/users/{self.id}/edit"
+
+    @property
     def post_edits_url(self) -> str:
         return DanbooruPostVersion.url_for(updater_id=self.id, limit=20)
 

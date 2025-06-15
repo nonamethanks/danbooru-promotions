@@ -2,6 +2,8 @@ services:
   dbpromotions:
     build:
       context: .
+    env_file:
+      - .env.docker # no credentials!
     restart: unless-stopped
     ports:
       - 0.0.0.0:8022:8022

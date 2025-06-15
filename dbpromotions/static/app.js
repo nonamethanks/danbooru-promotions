@@ -46,7 +46,7 @@ class DBPromotions {
                 viewTotal: true
             },
             stateSave: true,
-            order: [[3, 'desc']],
+            order: [[4, 'desc']],
             columnDefs: [
                 {
                     targets: [6],
@@ -77,6 +77,10 @@ class DBPromotions {
                             },
                         ]
                     },
+                },
+                {
+                    targets: 3,
+                    orderable: false,
                 },
             ],
         });
