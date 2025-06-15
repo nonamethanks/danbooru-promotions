@@ -12,10 +12,7 @@ def main(refresh: bool = False) -> None:
         refresh_levels()
     else:
         logger.info("Updating the DB.")
-        populate_ raise NotImplementedError
-
-
-database()
+        populate_database()
 
 
 if __name__ == "__main__":
