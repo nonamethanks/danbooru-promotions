@@ -16,3 +16,6 @@ node_modules
 # dbs
 *.sqlite
 *.sqlite-journal
+*.db
+
+data/celery

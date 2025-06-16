@@ -160,6 +160,8 @@ def get_recent_non_contributor_uploaders_deleted() -> list[IncompleteUserData]:
 
 def get_non_contributor_uploaders_deleted() -> list[IncompleteUserData]:
     params = {
+        "from": "2005-05-23",
+        "to": Defaults.RECENT_UNTIL_STR,
         "group": "uploader",
         "group_limit": 1000,
         "uploader": {

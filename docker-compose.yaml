@@ -1,5 +1,6 @@
 services:
   dbpromotions:
+    container_name: webservice
     build:
       context: .
     env_file:
@@ -10,3 +11,14 @@ services:
     volumes:
       - ./data/users.sqlite:/app/data/users.sqlite
       - ./dbpromotions:/app/dbpromotions
+  jobs:
+    container_name: jobs
+    build:
+      context: .
+    env_file:
+      - .env
+    restart: unless-stopped
+    volumes:
+      - ./data/users.sqlite:/app/data/users.sqlite
+      - ./dbpromotions:/app/dbpromotions
+    command: /bin/sh -c "/app/run_tasks.sh"
