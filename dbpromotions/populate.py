@@ -61,12 +61,14 @@ class IncompleteUserData(BaseModel):
         if last_checked and last_checked > (datetime.now() - timedelta(days=4)):  # noqa: DTZ005
             logger.info(f"User {self.id} was already checked recently.")
         else:
+            self.last_checked = datetime.now(tz=UTC)
             logger.info(f"Populating missing values for user {self.id}.")
             self.populate_other_values()
 
         user_data = self.model_dump(exclude_none=True)
         for key, value in user_data.items():
             setattr(user, key, value)
+
         user.save()
 
     @classmethod
@@ -106,11 +108,6 @@ class IncompleteUserData(BaseModel):
     @classmethod
     def validate_name(cls, value: str) -> str:
         return value.replace(" ", "_")
-
-    @computed_field  # type: ignore[prop-decorator]
-    @property
-    def last_checked(self) -> datetime:
-        return datetime.now(tz=UTC)
 
     @computed_field  # type: ignore[prop-decorator]
     @property

@@ -1,4 +1,4 @@
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 
 from danbooru.models.post import DanbooruPost
 from danbooru.models.post_version import DanbooruPostVersion
@@ -135,6 +135,18 @@ def init_database() -> None:
 
 
 def get_active_users() -> list[PromotionCandidate]:
-    return PromotionCandidate.select() \
-        .where(PromotionCandidate.level < UserLevel.number_from_name("contributor")) \
-        .where(PromotionCandidate.last_edit > Defaults.RECENT_SINCE)
+    users = PromotionCandidate.select() \
+        .where(PromotionCandidate.level < UserLevel.number_from_name("contributor"))
+
+    users = filter(was_active_recently, users)
+
+    return list(users)
+
+
+# def get_users_to_update(limit: int = 20) -> None:
+#     users = PromotionCandidate.select() \
+#         .where(PromotionCandidate.last_checked < datetime.now(tz=UTC) - timedelta(days=4))
+
+
+def was_active_recently(user: PromotionCandidate) -> bool:
+    return user.last_checked - user.last_edit < Defaults.RECENT_RANGE

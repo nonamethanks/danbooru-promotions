@@ -10,11 +10,15 @@ class Settings:
 
 
 class Defaults:
-    RECENT_SINCE = datetime.now(tz=UTC) - timedelta(days=60)
+    RECENT_RANGE = timedelta(days=60)
+
+    RECENT_SINCE = datetime.now(tz=UTC) - RECENT_RANGE
     RECENT_SINCE_STR = RECENT_SINCE.strftime("%Y-%m-%d")
 
     RECENT_UNTIL = datetime.now(tz=UTC) + timedelta(days=1)
     RECENT_UNTIL_STR = RECENT_UNTIL.strftime("%Y-%m-%d")
+
+    NOW = datetime.now(tz=UTC)
 
     MIN_UPLOADS = 500
     MIN_EDITS = 2000
