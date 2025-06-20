@@ -143,10 +143,5 @@ def get_active_users() -> list[PromotionCandidate]:
     return list(users)
 
 
-# def get_users_to_update(limit: int = 20) -> None:
-#     users = PromotionCandidate.select() \
-#         .where(PromotionCandidate.last_checked < datetime.now(tz=UTC) - timedelta(days=4))
-
-
 def was_active_recently(user: PromotionCandidate) -> bool:
     return user.last_checked - user.last_edit < Defaults.RECENT_RANGE

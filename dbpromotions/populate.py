@@ -21,6 +21,7 @@ class IncompleteUserData(BaseModel):
     name: str
     level: UserLevel | None = None
     created_at: datetime | None = None
+    last_checked: datetime | None = None
 
     is_banned: bool | None = None
 
@@ -49,27 +50,32 @@ class IncompleteUserData(BaseModel):
     # total_forum_posts: int | None = None
     # recent_forum_posts: int | None = None
 
-    def save_to_db(self) -> None:
+    def save_to_db(self, update: bool = False) -> bool:
         try:
             user = PromotionCandidate.get(self.id)
         except peewee.DoesNotExist:
             user = PromotionCandidate(id=self.id)
-            last_checked = None
+            self.last_checked = None
         else:
-            last_checked = user.last_checked
+            self.last_checked = user.last_checked
 
-        if last_checked and last_checked > (datetime.now() - timedelta(days=4)):  # noqa: DTZ005
+        fetched = False
+        if self.last_checked and self.last_checked > (datetime.now() - timedelta(days=5)):  # noqa: DTZ005
             logger.info(f"User {self.id} was already checked recently.")
-        else:
+        elif update:
             self.last_checked = datetime.now(tz=UTC)
             logger.info(f"Populating missing values for user {self.id}.")
             self.populate_other_values()
+            fetched = True
+        else:
+            logger.info("Reached the limit for fetchable user info in the current session. Skipping until next scan.")
 
         user_data = self.model_dump(exclude_none=True)
         for key, value in user_data.items():
             setattr(user, key, value)
 
         user.save()
+        return fetched
 
     @classmethod
     def update_from_danbooru_user(cls, user: DanbooruUser) -> None:
@@ -136,7 +142,7 @@ def get_recent_non_contributor_uploaders() -> list[IncompleteUserData]:
             "level": "<35",
         },
     }
-    recent_uploader_data = DanbooruPostReport.get(**params)
+    recent_uploader_data = DanbooruPostReport.get(**params)  # type: ignore[arg-type]
     return [IncompleteUserData(name=r.uploader, recent_posts=r.posts, recently_active=True) for r in recent_uploader_data]
 
 
@@ -151,7 +157,7 @@ def get_recent_non_contributor_uploaders_deleted() -> list[IncompleteUserData]:
         },
         "tags": "status:deleted",
     }
-    recent_uploader_data = DanbooruPostReport.get(**params)
+    recent_uploader_data = DanbooruPostReport.get(**params)  # type: ignore[arg-type]
     return [IncompleteUserData(name=r.uploader, recent_deleted_posts=r.posts, recently_active=True) for r in recent_uploader_data]
 
 
@@ -166,7 +172,7 @@ def get_non_contributor_uploaders_deleted() -> list[IncompleteUserData]:
         },
         "tags": "status:deleted",
     }
-    uploader_data = DanbooruPostReport.get(**params)
+    uploader_data = DanbooruPostReport.get(**params)  # type: ignore[arg-type]
     return [IncompleteUserData(name=r.uploader, total_deleted_posts=r.posts) for r in uploader_data]
 
 
@@ -248,7 +254,7 @@ def get_biggest_non_builder_appealers() -> list[IncompleteUserData]:
         },
     }
 
-    recent_uploader_data = DanbooruPostAppealReport.get(**params)
+    recent_uploader_data = DanbooruPostAppealReport.get(**params)  # type: ignore[arg-type]
     return [IncompleteUserData(name=r.creator, artist_edits=r.appeals) for r in recent_uploader_data]
 
 
@@ -302,15 +308,16 @@ def get_user_map_by_name() -> dict[str, IncompleteUserData]:
     return user_map_by_name
 
 
-def seed_missing_data(user_map_by_name: dict[str, IncompleteUserData]) -> dict[int, IncompleteUserData]:
+def seed_missing_data(user_map_by_name: dict[str, IncompleteUserData], max_to_update: int) -> dict[int, IncompleteUserData]:
     user_map_by_id: dict[int, IncompleteUserData] = {}
     missing_ids: list[IncompleteUserData] = []
 
     processed = 0
+    fetched = 0
 
     for user_data in user_map_by_name.values():
         if user_data.id:
-            user_data.save_to_db()
+            fetched += user_data.save_to_db(update=fetched < max_to_update)
             processed += 1
             logger.info(f"At user {processed} of {len(user_map_by_name)}")
             user_map_by_id[user_data.id] = user_data
@@ -318,9 +325,9 @@ def seed_missing_data(user_map_by_name: dict[str, IncompleteUserData]) -> dict[i
             missing_ids.append(user_data)
 
     for missing_id in missing_ids:
-        user, = DanbooruUser.get(**{"search[name]": missing_id.name})
+        user, = DanbooruUser.get(**{"search[name]": missing_id.name})  # type: ignore[arg-type]
         user_data = IncompleteUserData(**user.model_dump(exclude_none=True))
-        user_data.save_to_db()
+        fetched += user_data.save_to_db(update=fetched < max_to_update)
         processed += 1
         logger.info(f"At user {processed} of {len(user_map_by_name)}")
         user_map_by_id[user.id] = user_data
@@ -332,7 +339,7 @@ def populate_database() -> None:
     init_database()
     user_map_by_name = get_user_map_by_name()
     logger.info(f"Processing {len(user_map_by_name)} users.")
-    seed_missing_data(user_map_by_name)
+    seed_missing_data(user_map_by_name, max_to_update=50)
 
 
 def get_known_user_ids() -> set[int]:
