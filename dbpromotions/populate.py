@@ -62,10 +62,10 @@ class IncompleteUserData(BaseModel):
 
         fetched = False
         if self.last_checked and self.last_checked > (datetime.now() - timedelta(days=5)):  # noqa: DTZ005
-            logger.info(f"User {self.id} was already checked recently.")
+            logger.info(f"User #{self.id} '{self.name}' was already checked recently.")
         elif update:
             self.last_checked = datetime.now(tz=UTC)
-            logger.info(f"Populating missing values for user {self.id}.")
+            logger.info(f"Populating missing values for user #{self.id} '{self.name}'.")
             self.populate_other_values()
             fetched = True
         else:
