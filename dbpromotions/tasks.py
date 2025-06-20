@@ -20,11 +20,11 @@ def setup_periodic_tasks(sender: Celery, **kwargs) -> None:  # noqa: ARG001
     sender.add_periodic_task(crontab(minute="30", hour="*"), populate_database_task.s(), name="Populate database.")
 
 
-@tasks.task
+@tasks.task(max_retries=0)
 def refresh_levels_task() -> None:
     refresh_levels()
 
 
-@tasks.task
+@tasks.task(max_retries=0)
 def populate_database_task() -> None:
     populate_database()

@@ -17,6 +17,6 @@ services:
       - .env
     restart: unless-stopped
     volumes:
-      - ./data/users.sqlite:/app/data/users.sqlite
+      - ./data/:/app/data/
       - ./dbpromotions:/app/dbpromotions
     command: /bin/sh -c "/app/run_tasks.sh"
