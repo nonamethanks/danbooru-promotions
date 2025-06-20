@@ -57,6 +57,7 @@
                     <th>Notes</th>
                     <th>Edits</th>
                     <th>Last Edit</th>
+                    <th>First Added</th>
                 </tr>
             </thead>
 
@@ -76,6 +77,7 @@
                     <td class="totalNotes"><a href="{{ user.note_edits_url }}" target="_blank">{{ user.total_note_edits }}</a></td>
                     <td class="totalEdits"><a href="{{ user.post_edits_url }}" target="_blank">{{ user.post_edits }}</a></td>
                     <td class="lastEdit" data-order="{{ user.last_edit_dt | days_ago }}">{{ user.last_edit_dt | days_ago_str }}</td>
+                    <td class="firstAdded" data-order="{{ user.first_added_dt | days_ago }}">{{ user.first_added_dt | days_ago_str }}</td>
                 </tr>
                 {% endfor %}
             </tbody>

@@ -25,6 +25,8 @@ class PromotionCandidate(Model):
     is_banned = BooleanField()
 
     last_checked = TimestampField()
+    first_added = TimestampField(default=datetime.now)
+
     last_edit = TimestampField()
 
     total_posts = IntegerField(index=True)
@@ -111,6 +113,12 @@ class PromotionCandidate(Model):
     @property
     def last_edit_dt(self) -> datetime:
         dt = self.last_edit
+        dt = dt.replace(tzinfo=UTC)
+        return dt
+
+    @property
+    def first_added_dt(self) -> datetime:
+        dt = self.first_added
         dt = dt.replace(tzinfo=UTC)
         return dt
 

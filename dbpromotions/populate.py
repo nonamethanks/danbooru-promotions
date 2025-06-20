@@ -21,6 +21,7 @@ class IncompleteUserData(BaseModel):
     name: str
     level: UserLevel | None = None
     created_at: datetime | None = None
+
     last_checked: datetime | None = None
 
     is_banned: bool | None = None
