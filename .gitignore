@@ -14,8 +14,7 @@ node_modules
 .env
 
 # dbs
-*.sqlite
-*.sqlite-journal
+*.sqlite*
 *.db
 
 data/celery
