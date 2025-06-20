@@ -16,6 +16,7 @@ class DBPromotions {
             initComplete: function() { $("table#users").show(); },
             paging: true,
             lengthMenu: [10, 25, 50, 75, 100, 1000],
+            pageLength: 25,
             responsive: true,
             layout: {
                 top3: {
