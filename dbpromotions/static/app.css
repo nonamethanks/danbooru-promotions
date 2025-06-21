@@ -121,3 +121,8 @@ body {
     margin: 0 auto;
     font-family: sans-serif;
 }
+
+#changelog {
+    color: red;
+    font-weight: bold;
+}
