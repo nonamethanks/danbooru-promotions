@@ -22,8 +22,8 @@ def days_ago_int(dt: datetime) -> int:
     return max((datetime.now(tz=UTC) - dt).days, 0)
 
 
-@server.template_filter("days_ago_str")
-def days_ago_str(dt: datetime) -> str:
+@server.template_filter("weeks_ago_str")
+def weeks_ago_str(dt: datetime) -> str:
     days_ago = days_ago_int(dt)
     if days_ago == 0:
         return "today"
@@ -37,6 +37,19 @@ def days_ago_str(dt: datetime) -> str:
         return "this month"
     elif days_ago/31 < 12:
         return f"{days_ago//30 + 1} months ago"
+    else:
+        return f"{days_ago//365 + 1} years ago"
+
+
+@server.template_filter("days_ago_str")
+def days_ago_str(dt: datetime) -> str:
+    days_ago = days_ago_int(dt)
+    if days_ago == 0:
+        return "today"
+    elif days_ago < 31:
+        return f"{days_ago} days ago"
+    elif days_ago/31 < 12:
+        return f"{days_ago//31 + 1} months ago"
     else:
         return f"{days_ago//365 + 1} years ago"
 

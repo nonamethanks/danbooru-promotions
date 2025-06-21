@@ -60,6 +60,8 @@ class IncompleteUserData(BaseModel):
         else:
             self.last_checked = user.last_checked
 
+        force_insert = not self.last_checked
+
         fetched = False
         if self.last_checked and self.last_checked > (datetime.now() - timedelta(days=5)):  # noqa: DTZ005
             logger.info(f"User #{self.id} '{self.name}' was already checked recently.")
@@ -75,7 +77,7 @@ class IncompleteUserData(BaseModel):
         for key, value in user_data.items():
             setattr(user, key, value)
 
-        user.save(force_insert=not self.last_checked)
+        user.save(force_insert=force_insert)
         return fetched
 
     @classmethod
