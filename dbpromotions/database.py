@@ -1,7 +1,6 @@
 from datetime import UTC, datetime, timedelta
 
-from danbooru.models.post import DanbooruPost
-from danbooru.models.post_version import DanbooruPostVersion
+from danbooru.models import DanbooruPost, DanbooruPostVersion
 from danbooru.user_level import UserLevel
 from loguru import logger
 from peewee import BooleanField, CharField, IntegerField, Model, SqliteDatabase, TimestampField

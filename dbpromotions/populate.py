@@ -3,11 +3,8 @@ from datetime import UTC, datetime, timedelta
 from itertools import batched
 
 import peewee
-from danbooru.models.post_counts import DanbooruPostCounts
-from danbooru.models.post_version import DanbooruPostVersion
-from danbooru.models.user import DanbooruUser
-from danbooru.reports.post_appeal_report import DanbooruPostAppealReport
-from danbooru.reports.post_report import DanbooruPostReport
+from danbooru.models import DanbooruPostCounts, DanbooruPostVersion, DanbooruUser
+from danbooru.reports import DanbooruPostAppealReport, DanbooruPostReport
 from danbooru.user_level import UserLevel
 from loguru import logger
 from pydantic import BaseModel, computed_field, field_validator
