@@ -18,5 +18,6 @@ services:
     restart: unless-stopped
     volumes:
       - ./data/:/app/data/
+      - ./run_tasks.sh:/app/run_tasks.sh
       - ./dbpromotions:/app/dbpromotions
     command: /bin/sh -c "/app/run_tasks.sh"

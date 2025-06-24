@@ -15,16 +15,16 @@ tasks = Celery(  # type: ignore[call-arg]
 
 @tasks.on_after_configure.connect  # type: ignore[union-attr]
 def setup_periodic_tasks(sender: Celery, **kwargs) -> None:  # noqa: ARG001
-    sender.add_periodic_task(crontab(minute="0", hour="14"), refresh_levels_task.s(), name="Refresh levels.")
+    sender.add_periodic_task(crontab(minute="20", hour="*"), refresh_levels_task.s(), name="Refresh levels.")
 
     sender.add_periodic_task(crontab(minute="30", hour="*"), populate_database_task.s(), name="Populate database.")
 
 
-@tasks.task(max_retries=0)
+@tasks.task(max_retries=0, ignore_result=True)
 def refresh_levels_task() -> None:
     refresh_levels()
 
 
-@tasks.task(max_retries=0)
+@tasks.task(max_retries=0, ignore_result=True)
 def populate_database_task() -> None:
     populate_database()
