@@ -1,5 +1,6 @@
 services:
   webservice:
+    image: dbpromotions
     build:
       context: .
     env_file:
@@ -11,6 +12,7 @@ services:
       - ./data/users.sqlite:/app/data/users.sqlite
       - ./dbpromotions:/app/dbpromotions
   jobs:
+    image: dbpromotions
     build:
       context: .
     env_file:
