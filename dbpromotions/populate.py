@@ -89,6 +89,7 @@ class IncompleteUserData(BaseModel):
         if self.total_posts == 0:
             self.recent_posts = 0
             self.total_deleted_posts = 0
+            self.recent_deleted_posts = 0
         else:
             count_search = DanbooruPostCounts.get(tags=f"user:{self.name} date:{Defaults.RECENT_SINCE_STR}..",
                                                   cache=True)  # type: ignore[var-annotated] # one fucking job
