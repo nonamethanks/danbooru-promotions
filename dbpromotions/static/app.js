@@ -11,6 +11,12 @@ class DBPromotions {
         console.log("Correctly initialized.")
     }
 
+    column_index_from_name(name) {
+        return $("#users th").filter(function () {
+            return $(this).text().trim().toLowerCase() === name.toLowerCase();
+        }).index();
+    }
+
     init_table() {
         this.table = new DataTable("table#users", {
             initComplete: function() { $("table#users").show(); },
@@ -21,7 +27,10 @@ class DBPromotions {
             layout: {
                 top3: {
                     searchPanes: {
-                        columns: [1, 6],  // Specifies which columns to include in the search panes
+                        columns: [ // Specifies which columns to include in the search panes
+                            this.column_index_from_name("Level"),
+                            this.column_index_from_name("Total %")
+                        ],
                         controls: false,
                         dtOpts: {
                             select: {
@@ -47,10 +56,10 @@ class DBPromotions {
                 viewTotal: true
             },
             stateSave: true,
-            order: [[4, 'desc']],
+            order: [[this.column_index_from_name("Uploads"), 'desc']],
             columnDefs: [
                 {
-                    targets: [6],
+                    targets: [this.column_index_from_name("Total %")],
                     searchPanes: {
                         show: true,
                         header: "Additional Filtering",
@@ -78,10 +87,6 @@ class DBPromotions {
                             },
                         ]
                     },
-                },
-                {
-                    targets: 3,
-                    orderable: false,
                 },
             ],
         });

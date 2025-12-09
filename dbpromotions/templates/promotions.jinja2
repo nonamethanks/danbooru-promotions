@@ -48,7 +48,6 @@
                     <th>ID</th>
                     <th>Level</th>
                     <th>User</th>
-                    <th></th>
                     <th>Uploads</th>
                     <th>Deleted Uploads</th>
                     <th>Total %</th>
@@ -68,7 +67,6 @@
                     <td class="userid">{{ user.id }}</td>
                     <td class="level" data-order="{{ user.level }}">{{ user.level_string|title }}</td>
                     <td class="username"><a href="{{ user.url }}" target="_blank">{{ user.name }}</a></td>
-                    <td class="promote"><a href="{{ user.promote_url }}" target="_blank">Promote</a>
                     <td class="totalUploaded">{{user.total_posts}}</td>
                     <td class="totalDeleted">{{user.total_deleted_posts}}</td>
                     <td class="totalRatio">{{ user.html_total_deletion_ratio }}</td>
