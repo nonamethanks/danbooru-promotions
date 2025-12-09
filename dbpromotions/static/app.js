@@ -42,7 +42,7 @@ class DBPromotions {
             url: `/users/${rowData[this.column_index_from_name("ID")]}/edit_summary`,
             success: function ( response ) {
                 div.html( response ).removeClass("loading");
-                new DataTable("table#by_year", {
+                new DataTable("table#by_year:not(.dataTable)", {
                     paging: false,
                     responsive: true,
                     searching: false,
@@ -50,7 +50,7 @@ class DBPromotions {
                     info: false,
                     order: [[0, 'desc']],
                 })
-                new DataTable("table#by_tag", {
+                new DataTable("table#by_tag:not(.dataTable)", {
                     paging: false,
                     responsive: true,
                     searching: false,
