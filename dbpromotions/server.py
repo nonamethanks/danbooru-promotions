@@ -20,6 +20,8 @@ BUILDER_MAX_DEL_PERC = 15
 def days_ago_int(dt: datetime | str) -> int:
     if isinstance(dt, str):
         dt = datetime.fromisoformat(dt)
+    if not dt.tzinfo:
+        dt = dt.astimezone(UTC)
 
     return max((datetime.now(tz=UTC) - dt).days, 0)
 
