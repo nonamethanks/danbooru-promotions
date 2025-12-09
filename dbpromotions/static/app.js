@@ -4,11 +4,27 @@ class DBPromotions {
     initialize() {
         console.log("Initializing...")
 
-        this.init_table()
+        this.init_primary_table()
         this.init_values()
 
-
         console.log("Correctly initialized.")
+
+        let klass = this
+
+        this.table.on('click', 'tbody td.dt-control', function (e) {
+            let tr = e.target.closest('tr');
+            let row = klass.table.row(tr);
+
+            if (row.child.isShown()) {
+                // This row is already open - close it
+                row.child.hide();
+            }
+            else {
+                // Open this row
+                row.child(klass.populate_secondary_tables(row.data())).show();
+
+            }
+        });
     }
 
     column_index_from_name(name) {
@@ -17,7 +33,41 @@ class DBPromotions {
         }).index();
     }
 
-    init_table() {
+    populate_secondary_tables(rowData) {
+        var div = $('<div/>')
+            .addClass("loading")
+            .text("Loading...");
+
+        $.ajax( {
+            url: `/users/${rowData[this.column_index_from_name("ID")]}/edit_summary`,
+            success: function ( response ) {
+                div.html( response ).removeClass("loading");
+                new DataTable("table#by_year", {
+                    paging: false,
+                    responsive: true,
+                    searching: false,
+                    autowidth: false,
+                    info: false,
+                    order: [[0, 'desc']],
+                })
+                new DataTable("table#by_tag", {
+                    paging: false,
+                    responsive: true,
+                    searching: false,
+                    autowidth: false,
+                    info: false,
+                    order: [[1, 'desc']],
+                })
+            },
+            error: function(xhr, status, err) {
+                console.log("ERROR:", status, err);
+            }
+        } );
+
+        return div;
+    }
+
+    init_primary_table() {
         this.table = new DataTable("table#users", {
             initComplete: function() { $("table#users").show(); },
             paging: true,
@@ -59,6 +109,13 @@ class DBPromotions {
             order: [[this.column_index_from_name("Uploads"), 'desc']],
             columnDefs: [
                 {
+                    className: "dt-control",
+                    orderable: false,
+                    data: null,
+                    defaultContent: "",
+                    targets: 0
+                },
+                {
                     targets: [this.column_index_from_name("Total %")],
                     searchPanes: {
                         show: true,
@@ -68,7 +125,9 @@ class DBPromotions {
                                 label: '1. Users For Contrib (<4%, 500 ups, 50 recent)',
                                 // eslint-disable-next-line no-unused-vars
                                 value: function (rowData, rowIdx) {
-                                    return parseFloat(rowData[9]) < 4 && parseInt(rowData[4]) > 500 && parseInt($(rowData[7]).text()) > 50;
+                                    return parseFloat(rowData[9]) < 4
+                                        && parseInt(rowData[4]) > 500
+                                        && parseInt($(rowData[7]).text()) > 50;
                                 }
                             },
                             {

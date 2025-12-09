@@ -45,6 +45,7 @@
         <table id="users" class="cell-border order-column compact stripe hover" style="display: none">
             <thead>
                 <tr>
+                    <th>Edits Report</th>
                     <th>ID</th>
                     <th>Level</th>
                     <th>User</th>
@@ -64,6 +65,7 @@
             <tbody>
                 {% for user in users %}
                 <tr class="{{ user.html_classes }}" data-user-id="{{ user.id }}">
+                    <td class="details-control"></td>
                     <td class="userid">{{ user.id }}</td>
                     <td class="level" data-order="{{ user.level }}">{{ user.level_string|title }}</td>
                     <td class="username"><a href="{{ user.url }}" target="_blank">{{ user.name }}</a></td>

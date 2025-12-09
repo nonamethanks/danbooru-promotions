@@ -1,4 +1,5 @@
 import re
+from collections import defaultdict
 from datetime import UTC, datetime, timedelta
 from itertools import batched
 
@@ -10,7 +11,7 @@ from loguru import logger
 from pydantic import BaseModel, computed_field, field_validator
 
 from dbpromotions import Defaults
-from dbpromotions.database import PromotionCandidate, init_database
+from dbpromotions.database import PromotionCandidate, PromotionCandidateEdits, init_database
 
 
 class IncompleteUserData(BaseModel):
@@ -110,6 +111,79 @@ class IncompleteUserData(BaseModel):
 
         last_version, = DanbooruPostVersion.get(updater_id=self.id, cache=True, limit=1)
         self.last_edit = last_version.updated_at
+
+    def fetch_edit_data(self) -> dict:
+        post_edits = DanbooruPostVersion.get_all(updater_name=self.name, is_new=False, max_pages=10)
+
+        by_year = defaultdict(int)
+        by_tag = defaultdict(lambda: {
+            "added": 0,
+            "removed": 0,
+            "revert_added": 0,
+            "revert_removed": 0,
+        })
+
+        for post_edit in post_edits:
+            by_year[post_edit.updated_at.year] += 1
+
+            for tag in post_edit.added_tags:
+                by_tag[tag]["added"] += 1
+            for tag in post_edit.removed_tags:
+                by_tag[tag]["removed"] += 1
+            for tag in post_edit.obsolete_added_tags:
+                by_tag[tag]["revert_added"] += 1
+            for tag in post_edit.obsolete_removed_tags:
+                by_tag[tag]["revert_removed"] += 1
+
+        by_tag = {k: v for k, v in by_tag.items() if v["added"] + v["removed"] > 100}
+        by_tag = dict(sorted(by_tag.items(), key=lambda v: v[1]["added"] + v[1]["removed"], reverse=True))
+
+        data = {
+            "oldest": post_edits[-1].updated_at,
+            "count": len(post_edits),
+            "by_year": by_year,
+            "by_tag":  by_tag,
+        }
+
+        return data
+
+    def update_edit_data(self, update: bool = False) -> bool:
+        if self.level > "platinum":
+            logger.info(f"Edit data for user #{self.id} '{self.name}' won't be collected because they're already builder+.")
+            return False
+
+        last_edit = PromotionCandidate.get(self.id).last_edit
+
+        if last_edit < (datetime.now() - timedelta(days=60)):  # noqa: DTZ005
+            logger.info(f"Edit data for user #{self.id} '{self.name}' won't be collected because they haven't edited in a long time.")
+            return False
+
+        try:
+            edit_data = PromotionCandidateEdits.get(self.id)
+        except peewee.DoesNotExist:
+            edit_data = PromotionCandidateEdits(id=self.id)
+            edit_data.last_checked = None
+
+        force_insert = not edit_data.last_checked
+
+        if not update:
+            logger.info("Reached the limit for fetchable edit data in the current session. Skipping until next scan.")
+            return False
+
+        if edit_data.last_checked and edit_data.last_checked > (datetime.now() - timedelta(days=30)):  # noqa: DTZ005
+            logger.info(f"Edit data for user #{self.id} '{self.name}' was already collected this month.")
+            return False
+
+        if edit_data.last_checked and edit_data.last_checked > last_edit:
+            logger.info(f"Edit data for user #{self.id} '{self.name}' won't be collected because they haven't edited in a long time.")
+            return False
+
+        edit_data.last_checked = datetime.now(tz=UTC)
+        logger.info(f"Populating edit data for user #{self.id} '{self.name}'.")
+        edit_data.data = self.fetch_edit_data()
+
+        edit_data.save(force_insert=force_insert)
+        return True
 
     @field_validator("name", mode="after")
     @classmethod
@@ -315,10 +389,12 @@ def seed_missing_data(user_map_by_name: dict[str, IncompleteUserData], max_to_up
 
     processed = 0
     fetched = 0
+    edit_data_updated = 0
 
     for user_data in user_map_by_name.values():
         if user_data.id:
             fetched += user_data.save_to_db(update=fetched < max_to_update)
+            edit_data_updated += user_data.update_edit_data(update=edit_data_updated < max_to_update)
             processed += 1
             logger.info(f"At user {processed} of {len(user_map_by_name)}")
             user_map_by_id[user_data.id] = user_data
@@ -326,9 +402,10 @@ def seed_missing_data(user_map_by_name: dict[str, IncompleteUserData], max_to_up
             missing_ids.append(user_data)
 
     for missing_id in missing_ids:
-        user, = DanbooruUser.get(**{"search[name]": missing_id.name})  # type: ignore[arg-type]
+        user, = DanbooruUser.get(**{"search[name]": missing_id.name})  # type: ignore[call-overload]
         user_data = IncompleteUserData(**user.model_dump(exclude_none=True))
         fetched += user_data.save_to_db(update=fetched < max_to_update)
+        edit_data_updated += user_data.update_edit_data(update=edit_data_updated < max_to_update)
         processed += 1
         logger.info(f"At user {processed} of {len(user_map_by_name)}")
         user_map_by_id[user.id] = user_data
@@ -336,11 +413,11 @@ def seed_missing_data(user_map_by_name: dict[str, IncompleteUserData], max_to_up
     return user_map_by_id
 
 
-def populate_database() -> None:
+def populate_database(max_to_update: int = 50) -> None:
     init_database()
     user_map_by_name = get_user_map_by_name()
     logger.info(f"Processing {len(user_map_by_name)} users.")
-    seed_missing_data(user_map_by_name, max_to_update=50)
+    seed_missing_data(user_map_by_name, max_to_update=max_to_update)
 
 
 def get_known_user_ids() -> set[int]:

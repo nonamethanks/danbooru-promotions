@@ -1,0 +1,49 @@
+<p><b>Below is a summary of the last 10 pages of edits by this user, excluding their own uploads.</b></p>
+<p> They have {{edits_data.count}} actual edits up to ~{{ edits_data.oldest | weeks_ago_str }}.</p>
+<div class="tables-side-by-side">
+    <div class="year-table">
+    <p><b>Edits by year:</b></p>
+    <table id="by_year" class="cell-border order-column compact stripe hover">
+        <thead>
+            <tr>
+                <th>Year</th>
+                <th>Edits</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for year, edits in edits_data.by_year.items() %}
+            <tr>
+                <td>{{year}}</td>
+                <td>{{edits}}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+
+    <div class="tag-table">
+    <p><b>Top tags edited (min 100 edits):</b></p>
+    <table id="by_tag" class="cell-border order-column compact stripe hover">
+        <thead>
+            <tr>
+                <th>Tag</th>
+                <th>Edits</th>
+                <th>Additions</th>
+                <th>Removals</th>
+                <th>% reverted</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for tag_name, tag_data in edits_data.by_tag.items() %}
+            <tr class="{{'bad-edits-row' if tag_data.bad_edits else ''}}">
+                <td class="edit-link"><a href="https://danbooru.donmai.us/post_versions?search[changed_tags]={{tag_name}}&search[updater_id]={{user_id}}&search[is_new]=false" target="_blank">{{tag_name}}</a></td>
+                <td>{{tag_data.total}}</td>
+                <td>{{tag_data.added}}</td>
+                <td>{{tag_data.removed}}</td>
+                <td>{{tag_data.revert_total_perc|int}}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+</div>

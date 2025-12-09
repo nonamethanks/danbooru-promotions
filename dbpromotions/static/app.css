@@ -29,21 +29,27 @@ table {
     border-collapse: collapse;
     margin: 25px auto;
     font-size: 0.9em;
-    min-width: 400px;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
 }
 
-table, td, th {
+table#users {
+    min-width: 400px;
+}
+
+table,
+td,
+th {
     text-align: center !important;
 }
 
 
-.username a {
+.username a,
+.edit-link a {
     font-weight: bold;
     color: black;
 }
 
-.builder .level  {
+.builder .level {
     background-color: var(--color-builder);
 }
 
@@ -60,11 +66,11 @@ table, td, th {
 }
 
 .banned .username {
-    background-color: lightcoral ;
+    background-color: lightcoral;
 }
 
 .deleted .username {
-    background-color: lightgray ;
+    background-color: lightgray;
 }
 
 .sticky-widget {
@@ -125,4 +131,14 @@ body {
 #changelog {
     color: red;
     font-weight: bold;
+}
+
+.bad-edits-row td {
+    background-color: var(--color-bad) !important;
+}
+
+.tables-side-by-side {
+    display: flex;
+    gap: 3em;
+    justify-content: center
 }

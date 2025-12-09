@@ -1,9 +1,11 @@
+import json
 from datetime import UTC, datetime, timedelta
 
 from danbooru.models import DanbooruPost, DanbooruPostVersion
 from danbooru.user_level import UserLevel
 from loguru import logger
 from peewee import BooleanField, CharField, IntegerField, Model, SqliteDatabase, TimestampField
+from playhouse.sqlite_ext import JSONField
 
 from dbpromotions import Defaults, Settings
 
@@ -133,12 +135,21 @@ class PromotionCandidate(Model):
         return False
 
 
+class PromotionCandidateEdits(Model):
+    class Meta:
+        database = user_database
+
+    id = IntegerField(primary_key=True)
+    last_checked = TimestampField()
+    data = JSONField(json_dumps=lambda d: json.dumps(d, default=str))
+
+
 def init_database() -> None:
     logger.debug("Initializing database...")
     user_database_location.parent.mkdir(exist_ok=True)
     with user_database:
         logger.debug("Initializing tables...")
-        user_database.create_tables([PromotionCandidate])
+        user_database.create_tables([PromotionCandidate, PromotionCandidateEdits])
 
 
 def get_active_users() -> list[PromotionCandidate]:
