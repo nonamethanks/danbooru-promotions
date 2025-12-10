@@ -27,7 +27,7 @@ class DBPromotions {
         });
     }
 
-    column_index_from_name(name) {
+    get_column(name) {
         return $("#users th").filter(function () {
             return $(this).text().trim().toLowerCase() === name.toLowerCase();
         }).index();
@@ -39,7 +39,7 @@ class DBPromotions {
             .text("Loading...");
 
         $.ajax( {
-            url: `/users/${rowData[this.column_index_from_name("ID")]}/edit_summary`,
+            url: `/users/${rowData[this.get_column("ID")]}/edit_summary`,
             success: function ( response ) {
                 div.html( response ).removeClass("loading");
                 new DataTable("table#by_year:not(.dataTable)", {
@@ -68,6 +68,9 @@ class DBPromotions {
     }
 
     init_primary_table() {
+        let klass = this
+
+
         this.table = new DataTable("table#users", {
             initComplete: function() { $("table#users").show(); },
             paging: true,
@@ -78,8 +81,8 @@ class DBPromotions {
                 top3: {
                     searchPanes: {
                         columns: [ // Specifies which columns to include in the search panes
-                            this.column_index_from_name("Level"),
-                            this.column_index_from_name("Total %")
+                            klass.get_column("Level"),
+                            klass.get_column("Total %")
                         ],
                         controls: false,
                         dtOpts: {
@@ -106,7 +109,7 @@ class DBPromotions {
                 viewTotal: true
             },
             stateSave: true,
-            order: [[this.column_index_from_name("Uploads"), 'desc']],
+            order: [[klass.get_column("Uploads"), 'desc']],
             columnDefs: [
                 {
                     className: "dt-control",
@@ -116,7 +119,7 @@ class DBPromotions {
                     targets: 0
                 },
                 {
-                    targets: [this.column_index_from_name("Total %")],
+                    targets: [klass.get_column("Total %")],
                     searchPanes: {
                         show: true,
                         header: "Additional Filtering",
@@ -125,23 +128,23 @@ class DBPromotions {
                                 label: '1. Users For Contrib (<4%, 500 ups, 50 recent)',
                                 // eslint-disable-next-line no-unused-vars
                                 value: function (rowData, rowIdx) {
-                                    return parseFloat(rowData[9]) < 4
-                                        && parseInt(rowData[4]) > 500
-                                        && parseInt($(rowData[7]).text()) > 50;
+                                    return parseFloat(rowData[klass.get_column("recent %")]) < 4
+                                        && parseInt(rowData[klass.get_column("uploads")]) > 500
+                                        && parseInt($(rowData[klass.get_column("recent uploads")]).text()) > 50;
                                 }
                             },
                             {
                                 label: '2. Translators for Builder (>2000 notes)',
                                 // eslint-disable-next-line no-unused-vars
                                 value: function (rowData, rowIdx) {
-                                    return parseInt($(rowData[10]).text()) > 2000 && rowData[1].display !== "Builder";
+                                    return parseInt($(rowData[klass.get_column("notes")]).text()) > 2000 && rowData[klass.get_column("level")].display !== "Builder";
                                 }
                             },
                             {
                                 label: '3. Gardeners for Builder (>5000 edits)',
                                 // eslint-disable-next-line no-unused-vars
                                 value: function (rowData, rowIdx) {
-                                    return parseInt($(rowData[11]).text()) > 5000 && rowData[1].display !== "Builder";
+                                    return parseInt($(rowData[klass.get_column("edits")]).text()) > 5000 && rowData[klass.get_column("level")].display !== "Builder";
                                 }
                             },
                         ]
