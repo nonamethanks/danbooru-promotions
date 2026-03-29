@@ -141,10 +141,14 @@ class DBPromotions {
                                 }
                             },
                             {
-                                label: '3. Gardeners for Builder (>5000 edits)',
+                                label: '3. For Builder (>5000 edits or >1000 ups)',
                                 // eslint-disable-next-line no-unused-vars
                                 value: function (rowData, rowIdx) {
-                                    return parseInt($(rowData[klass.get_column("edits")]).text()) > 5000 && rowData[klass.get_column("level")].display !== "Builder";
+                                    return rowData[klass.get_column("level")].display !== "Builder"
+                                        && (
+                                            parseInt($(rowData[klass.get_column("edits")]).text()) > 5000 ||
+                                            parseInt(rowData[klass.get_column("uploads")]) > 1000
+                                        )
                                 }
                             },
                         ]
