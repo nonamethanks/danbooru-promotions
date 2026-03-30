@@ -241,7 +241,7 @@ wheels = [
 [[package]]
 name = "danbooru"
 version = "0.1.0"
-source = { git = "https://github.com/nonamethanks/python-danbooru.git#42af4e436833217b881816350685bdb51ae5d677" }
+source = { git = "https://github.com/nonamethanks/python-danbooru.git#f04f68b1f391625e667f9cd3425eaabac347494b" }
 dependencies = [
     { name = "backoff" },
     { name = "inflection" },

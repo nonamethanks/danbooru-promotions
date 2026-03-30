@@ -53,6 +53,8 @@ class PromotionCandidate(Model):
     # appeals = IntegerField(index=True)
     # recent_appeals = IntegerField(index=True)
 
+    low_gentag_posts = IntegerField(index=True)
+
     @property
     def html_classes(self) -> str:
         classes = ["user"]
@@ -133,6 +135,17 @@ class PromotionCandidate(Model):
                 return True
 
         return False
+
+    @property
+    def is_mintagger(self) -> bool:
+        if not self.low_gentag_posts:
+            return False
+        mintag_ratio = (self.low_gentag_posts / self.recent_posts) * 100
+        return self.low_gentag_posts > 20 or (mintag_ratio > 30 and self.recent_posts > 10)
+
+    @property
+    def mintags_url(self) -> str:
+        return DanbooruPost.url_for(tags=f"gentags:<15 -scenery -no_humans user:{self.name} date:{Defaults.RECENT_SINCE_STR}..")
 
 
 class PromotionCandidateEdits(Model):

@@ -47,6 +47,7 @@ th {
 .edit-link a {
     font-weight: bold;
     color: black;
+    text-decoration: none;
 }
 
 .builder .level {

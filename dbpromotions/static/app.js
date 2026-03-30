@@ -125,7 +125,7 @@ class DBPromotions {
                         header: "Additional Filtering",
                         options: [
                             {
-                                label: '1. Users For Contrib (<4%, 500 ups, 50 recent)',
+                                label: '1. For Contrib (<4%, 500 ups, 50 recent)',
                                 // eslint-disable-next-line no-unused-vars
                                 value: function (rowData, rowIdx) {
                                     return parseFloat(rowData[klass.get_column("recent %")]) < 4
@@ -149,6 +149,13 @@ class DBPromotions {
                                             parseInt($(rowData[klass.get_column("edits")]).text()) > 5000 ||
                                             parseInt(rowData[klass.get_column("uploads")]) > 1000
                                         )
+                                }
+                            },
+                            {
+                                label: '4. Mintaggers',
+                                // eslint-disable-next-line no-unused-vars
+                                value: function (rowData, rowIdx) {
+                                    return $(rowData[klass.get_column("user")]).text().includes("⚠️")
                                 }
                             },
                         ]

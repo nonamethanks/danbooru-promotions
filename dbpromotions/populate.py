@@ -49,7 +49,9 @@ class IncompleteUserData(BaseModel):
     # total_forum_posts: int | None = None
     # recent_forum_posts: int | None = None
 
-    def save_to_db(self, update: bool = False) -> bool:
+    low_gentag_posts: int | None = None
+
+    def save_to_db(self, update: bool = False, skip_time_check: bool = False) -> bool:
         try:
             user = PromotionCandidate.get(self.id)
         except peewee.DoesNotExist:
@@ -61,7 +63,7 @@ class IncompleteUserData(BaseModel):
         force_insert = not self.last_checked
 
         fetched = False
-        if self.last_checked and self.last_checked > (datetime.now() - timedelta(days=5)):  # noqa: DTZ005
+        if not skip_time_check and self.last_checked and self.last_checked > (datetime.now() - timedelta(days=5)):  # noqa: DTZ005
             logger.info(f"User #{self.id} '{self.name}' was already checked recently.")
         elif update or not self.last_checked:
             self.last_checked = datetime.now(tz=UTC)
@@ -91,6 +93,7 @@ class IncompleteUserData(BaseModel):
             self.recent_posts = 0
             self.total_deleted_posts = 0
             self.recent_deleted_posts = 0
+            self.low_gentag_posts = 0
         else:
             count_search = DanbooruPostCounts.get(tags=f"user:{self.name} date:{Defaults.RECENT_SINCE_STR}..",
                                                   cache=True)  # type: ignore[var-annotated] # one fucking job
@@ -108,6 +111,15 @@ class IncompleteUserData(BaseModel):
                     cache=True,
                 )  # type: ignore[var-annotated] # one fucking job
                 self.recent_deleted_posts = count_search.count      # type: ignore[attr-defined]
+
+            if self.recent_posts == 0:
+                self.low_gentag_posts = 0
+            else:
+                count_search = DanbooruPostCounts.get(
+                    tags=f"gentags:<15 -scenery -no_humans user:{self.name} date:{Defaults.RECENT_SINCE_STR}..",
+                    cache=True,
+                )  # type: ignore[var-annotated] # one fucking job
+                self.low_gentag_posts = count_search.count      # type: ignore[attr-defined]
 
         last_version, = DanbooruPostVersion.get(updater_id=self.id, cache=True, limit=1)
         self.last_edit = last_version.updated_at
@@ -180,6 +192,7 @@ class IncompleteUserData(BaseModel):
 
         edit_data.last_checked = datetime.now(tz=UTC)
         logger.info(f"Populating edit data for user #{self.id} '{self.name}'.")
+
         edit_data.data = self.fetch_edit_data()
 
         edit_data.save(force_insert=force_insert)
@@ -383,7 +396,7 @@ def get_user_map_by_name() -> dict[str, IncompleteUserData]:
     return user_map_by_name
 
 
-def seed_missing_data(user_map_by_name: dict[str, IncompleteUserData], max_to_update: int) -> dict[int, IncompleteUserData]:
+def seed_missing_data(user_map_by_name: dict[str, IncompleteUserData], max_to_update: int, min_uploads: int) -> dict[int, IncompleteUserData]:
     user_map_by_id: dict[int, IncompleteUserData] = {}
     missing_ids: list[IncompleteUserData] = []
 
@@ -391,9 +404,13 @@ def seed_missing_data(user_map_by_name: dict[str, IncompleteUserData], max_to_up
     fetched = 0
     edit_data_updated = 0
 
+    skip_time_check = min_uploads > 0
+
     for user_data in user_map_by_name.values():
         if user_data.id:
-            fetched += user_data.save_to_db(update=fetched < max_to_update)
+            if user_data.total_posts < min_uploads:
+                continue
+            fetched += user_data.save_to_db(update=fetched < max_to_update, skip_time_check=skip_time_check)
             edit_data_updated += user_data.update_edit_data(update=edit_data_updated < max_to_update)
             processed += 1
             logger.info(f"At user {processed} of {len(user_map_by_name)}")
@@ -404,7 +421,9 @@ def seed_missing_data(user_map_by_name: dict[str, IncompleteUserData], max_to_up
     for missing_id in missing_ids:
         user, = DanbooruUser.get(**{"search[name]": missing_id.name})  # type: ignore[call-overload]
         user_data = IncompleteUserData(**user.model_dump(exclude_none=True))
-        fetched += user_data.save_to_db(update=fetched < max_to_update)
+        if user_data.total_posts < min_uploads:
+            continue
+        fetched += user_data.save_to_db(update=fetched < max_to_update, skip_time_check=skip_time_check)
         edit_data_updated += user_data.update_edit_data(update=edit_data_updated < max_to_update)
         processed += 1
         logger.info(f"At user {processed} of {len(user_map_by_name)}")
@@ -413,11 +432,11 @@ def seed_missing_data(user_map_by_name: dict[str, IncompleteUserData], max_to_up
     return user_map_by_id
 
 
-def populate_database(max_to_update: int = 50) -> None:
+def populate_database(max_to_update: int = 50, min_uploads: int = 0) -> None:
     init_database()
     user_map_by_name = get_user_map_by_name()
     logger.info(f"Processing {len(user_map_by_name)} users.")
-    seed_missing_data(user_map_by_name, max_to_update=max_to_update)
+    seed_missing_data(user_map_by_name, max_to_update=max_to_update, min_uploads=min_uploads)
 
 
 def get_known_user_ids() -> set[int]:

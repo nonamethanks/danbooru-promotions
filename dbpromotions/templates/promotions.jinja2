@@ -68,7 +68,12 @@
                     <td class="details-control"></td>
                     <td class="userid">{{ user.id }}</td>
                     <td class="level" data-order="{{ user.level }}">{{ user.level_string|title }}</td>
-                    <td class="username"><a href="{{ user.url }}" target="_blank">{{ user.name }}</a></td>
+                    <td class="username">
+                        <a href="{{ user.url }}" target="_blank">{{ user.name }}</a>
+                        {% if user.is_mintagger %}
+                            <a href="{{ user.mintags_url }}" title="<15 gentags on many recent uploads" target="_blank">⚠️</a>
+                        {% endif %}
+                    </td>
                     <td class="totalUploaded">{{user.total_posts}}</td>
                     <td class="totalDeleted">{{user.total_deleted_posts}}</td>
                     <td class="totalRatio">{{ user.html_total_deletion_ratio }}</td>
