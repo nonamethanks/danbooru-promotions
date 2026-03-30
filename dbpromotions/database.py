@@ -92,6 +92,10 @@ class PromotionCandidate(Model):
         return f"https://danbooru.donmai.us/forum_posts?search[creator_id]={self.id}"
 
     @property
+    def dmail_url(self) -> str:
+        return f"https://danbooru.donmai.us/dmails/new?dmail[to_id]={self.id}"
+
+    @property
     def total_delete_ratio(self) -> int:
         if self.total_posts == 0:
             return 0

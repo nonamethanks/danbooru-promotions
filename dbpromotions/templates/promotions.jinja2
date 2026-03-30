@@ -75,6 +75,7 @@
                         <a href="{{ user.url }}" target="_blank">{{ user.name }}</a>
                         {% if user.is_mintagger %}
                             <a href="{{ user.mintags_url }}" title="<15 gentags on many recent uploads" target="_blank">⚠️</a>
+                            <a href="{{ user.dmail_url }}" target="_blank">✉️</a>
                         {% endif %}
                     </td>
                     <td class="totalUploaded">{{user.total_posts}}</td>
