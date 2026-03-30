@@ -15,7 +15,10 @@ class DBPromotions {
             let tr = e.target.closest('tr');
             let row = klass.table.row(tr);
 
-            if (row.child.isShown()) {
+            let user_id = tr.getAttribute("data-user-id")
+            let breakdown_table = document.querySelector(`#edits-breakdown-${user_id}`)
+
+            if (breakdown_table) {
                 // This row is already open - close it
                 row.child.hide();
             }
