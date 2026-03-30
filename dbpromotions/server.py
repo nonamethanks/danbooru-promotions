@@ -1,5 +1,7 @@
 
+import hashlib
 from datetime import UTC, datetime
+from pathlib import Path
 
 from flask import Flask, render_template
 from jinja2 import StrictUndefined
@@ -66,6 +68,12 @@ def get_last_updated() -> datetime:
     return dt
 
 
+def get_js_hash() -> str:
+    file_path = Path("dbpromotions/static/app.js")
+    # Generate MD5 hash
+    return hashlib.md5(file_path.read_bytes()).hexdigest()  # noqa: S324
+
+
 @server.route("/")
 def users() -> str:
     users = get_active_users()
@@ -79,6 +87,7 @@ def users() -> str:
         max_deleted_bad=CONTRIB_MAX_DEL_COUNT,
         max_deleted_warning=CONTRIB_RISKY_DEL_COUNT,
         users=users,
+        checksum=get_js_hash(),
     )
 
 

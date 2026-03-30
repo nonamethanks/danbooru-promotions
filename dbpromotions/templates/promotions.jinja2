@@ -22,7 +22,7 @@
     <script src="https://cdn.datatables.net/searchpanes/2.3.3/js/dataTables.searchPanes.min.js"></script>
 
     <link href="{{ url_for("static", filename="app.css" ) }}" rel="stylesheet">
-    <script src="{{ url_for("static", filename="app.js" ) }}"></script>
+    <script src="{{ url_for("static", filename="app.js" ) }}?{{checksum}}"></script>
 
     <meta name="viewport" content="width=device-width" />
 
