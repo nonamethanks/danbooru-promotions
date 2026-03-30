@@ -144,15 +144,35 @@ class DBPromotions {
                                 label: '3. For Builder (>5000 edits or >1000 ups)',
                                 // eslint-disable-next-line no-unused-vars
                                 value: function (rowData, rowIdx) {
-                                    return rowData[klass.get_column("level")].display !== "Builder"
-                                        && (
+                                    return rowData[klass.get_column("level")].display !== "Builder" &&
+                                        (
                                             parseInt($(rowData[klass.get_column("edits")]).text()) > 5000 ||
                                             parseInt(rowData[klass.get_column("uploads")]) > 1000
                                         )
                                 }
                             },
                             {
-                                label: '4. Mintaggers',
+                                label: '4. Wiki/Artist Editors (>1000 edits)',
+                                // eslint-disable-next-line no-unused-vars
+                                value: function (rowData, rowIdx) {
+                                    return rowData[klass.get_column("level")].display !== "Builder" &&
+                                    (
+                                        parseInt($(rowData[klass.get_column("wikis")]).text()) + parseInt($(rowData[klass.get_column("artists")]).text()) > 1000
+                                    )
+                                }
+                            },
+                            {
+                                label: '5. Forum Posters (>100 posts)',
+                                // eslint-disable-next-line no-unused-vars
+                                value: function (rowData, rowIdx) {
+                                    return rowData[klass.get_column("level")].display !== "Builder" &&
+                                    (
+                                        parseInt($(rowData[klass.get_column("forum")]).text()) > 100
+                                    )
+                                }
+                            },
+                            {
+                                label: '6. Mintaggers/Bad users',
                                 // eslint-disable-next-line no-unused-vars
                                 value: function (rowData, rowIdx) {
                                     return $(rowData[klass.get_column("user")]).text().includes("⚠️")

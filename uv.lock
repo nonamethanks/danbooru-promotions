@@ -241,7 +241,7 @@ wheels = [
 [[package]]
 name = "danbooru"
 version = "0.1.0"
-source = { git = "https://github.com/nonamethanks/python-danbooru.git#f04f68b1f391625e667f9cd3425eaabac347494b" }
+source = { git = "https://github.com/nonamethanks/python-danbooru.git#6932e197eb382d05d6b960698f1a3b94cf278910" }
 dependencies = [
     { name = "backoff" },
     { name = "inflection" },
@@ -270,6 +270,7 @@ dependencies = [
 [package.dev-dependencies]
 dev = [
     { name = "celery-types" },
+    { name = "ipdb" },
     { name = "ipython" },
     { name = "mypy" },
     { name = "ruff" },
@@ -291,6 +292,7 @@ requires-dist = [
 [package.metadata.requires-dev]
 dev = [
     { name = "celery-types", specifier = ">=0.23.0" },
+    { name = "ipdb", specifier = ">=0.13.13" },
     { name = "ipython", specifier = ">=9.3.0" },
     { name = "mypy", specifier = ">=1.16.0" },
     { name = "ruff", specifier = ">=0.11.13" },
@@ -373,6 +375,19 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/e1/7e/691d061b7329bc8d54edbf0ec22fbfb2afe61facb681f9aaa9bff7a27d04/inflection-0.5.1.tar.gz", hash = "sha256:1a29730d366e996aaacffb2f1f1cb9593dc38e2ddd30c91250c6dde09ea9b417", size = 15091, upload-time = "2020-08-22T08:16:29.139Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/59/91/aa6bde563e0085a02a435aa99b49ef75b0a4b062635e606dab23ce18d720/inflection-0.5.1-py2.py3-none-any.whl", hash = "sha256:f38b2b640938a4f35ade69ac3d053042959b62a0f1076a5bbaa1b9526605a8a2", size = 9454, upload-time = "2020-08-22T08:16:27.816Z" },
+]
+
+[[package]]
+name = "ipdb"
+version = "0.13.13"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "decorator" },
+    { name = "ipython" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/3d/1b/7e07e7b752017f7693a0f4d41c13e5ca29ce8cbcfdcc1fd6c4ad8c0a27a0/ipdb-0.13.13.tar.gz", hash = "sha256:e3ac6018ef05126d442af680aad863006ec19d02290561ac88b8b1c0b0cfc726", size = 17042, upload-time = "2023-03-09T15:40:57.487Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/0c/4c/b075da0092003d9a55cf2ecc1cae9384a1ca4f650d51b00fc59875fe76f6/ipdb-0.13.13-py3-none-any.whl", hash = "sha256:45529994741c4ab6d2388bfa5d7b725c2cf7fe9deffabdb8a6113aa5ed449ed4", size = 12130, upload-time = "2023-03-09T15:40:55.021Z" },
 ]
 
 [[package]]

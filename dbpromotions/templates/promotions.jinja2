@@ -50,12 +50,15 @@
                     <th>Level</th>
                     <th>User</th>
                     <th>Uploads</th>
-                    <th>Deleted Uploads</th>
+                    <th>Deleted</th>
                     <th>Total %</th>
                     <th>Recent Uploads</th>
                     <th>Recent Deleted</th>
                     <th>Recent %</th>
                     <th>Notes</th>
+                    <th>Wikis</th>
+                    <th>Artists</th>
+                    <th>Forum</th>
                     <th>Edits</th>
                     <th>Last Edit</th>
                     <th>First Added</th>
@@ -81,6 +84,9 @@
                     <td class="recentDeleted"><a href="{{ user.recent_deleted_posts_url }}" target="_blank">{{ user.recent_deleted_posts }}</a></td>
                     <td class="recentRatio">{{ user.html_recent_deletion_ratio }}</td>
                     <td class="totalNotes"><a href="{{ user.note_edits_url }}" target="_blank">{{ user.total_note_edits }}</a></td>
+                    <td class="totalWikis"><a href="{{ user.wiki_edits_url }}" target="_blank">{{ user.total_wiki_edits }}</a></td>
+                    <td class="totalArtists"><a href="{{ user.artist_edits_url }}" target="_blank">{{ user.total_artist_edits }}</a></td>
+                    <td class="totalForums"><a href="{{ user.forum_posts_url }}" target="_blank">{{ user.total_forum_posts }}</a></td>
                     <td class="totalEdits"><a href="{{ user.post_edits_url }}" target="_blank">{{ user.post_edits }}</a></td>
                     <td class="lastEdit" data-order="{{ user.last_edit_dt | days_ago }}">{{ user.last_edit_dt | weeks_ago_str }}</td>
                     <td class="firstAdded" title="{{user.first_added_dt}}" data-order="{{ user.first_added_dt | days_ago }}">{{ user.first_added_dt | days_ago_str }}</td>

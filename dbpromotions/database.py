@@ -39,19 +39,9 @@ class PromotionCandidate(Model):
     post_edits = IntegerField(index=True)
 
     total_note_edits = IntegerField(index=True)
-    # recent_note_edits = IntegerField(index=True)
-
-    # total_wiki_edits = IntegerField(index=True)
-    # recent_wiki_edits = IntegerField(index=True)
-
-    # artist_edits = IntegerField(index=True)
-    # recent_artist_edits = IntegerField(index=True)
-
-    # forum_posts = IntegerField(index=True)
-    # recent_forum_posts = IntegerField(index=True)
-
-    # appeals = IntegerField(index=True)
-    # recent_appeals = IntegerField(index=True)
+    total_wiki_edits = IntegerField(index=True)
+    total_artist_edits = IntegerField(index=True)
+    total_forum_posts = IntegerField(index=True)
 
     low_gentag_posts = IntegerField(index=True)
 
@@ -88,6 +78,18 @@ class PromotionCandidate(Model):
     @property
     def note_edits_url(self) -> str:
         return f"https://danbooru.donmai.us/note_versions?search[updater_id]={self.id}"
+
+    @property
+    def wiki_edits_url(self) -> str:
+        return f"https://danbooru.donmai.us/wiki_page_versions?search[updater_id]={self.id}"
+
+    @property
+    def artist_edits_url(self) -> str:
+        return f"https://danbooru.donmai.us/artist_versions?search[updater_id]={self.id}"
+
+    @property
+    def forum_posts_url(self) -> str:
+        return f"https://danbooru.donmai.us/forum_posts?search[creator_id]={self.id}"
 
     @property
     def total_delete_ratio(self) -> int:
@@ -130,8 +132,14 @@ class PromotionCandidate(Model):
         if self.total_posts > Defaults.MIN_UPLOADS:
             return True
 
-        if self.post_edits > Defaults.MIN_EDITS or self.total_note_edits > Defaults.MIN_NOTES:  # noqa: SIM102
-            if self.level < UserLevel.number_from_name("builder"):
+        if self.level < UserLevel.number_from_name("builder"):
+            if self.post_edits > Defaults.MIN_EDITS or self.total_note_edits > Defaults.MIN_NOTES:
+                return True
+
+            if self.total_wiki_edits + self.total_artist_edits > Defaults.MIN_WIKI_ARTIST_EDITS:
+                return True
+
+            if self.total_forum_posts > Defaults.MIN_FORUM_POSTS:
                 return True
 
         return False

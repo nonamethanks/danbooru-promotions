@@ -18,8 +18,12 @@ class Defaults:
     RECENT_UNTIL = datetime.now(tz=UTC) + timedelta(days=1)
     RECENT_UNTIL_STR = RECENT_UNTIL.strftime("%Y-%m-%d")
 
+    DANBOORU_START_DATE_STR = "2005-05-23"
+
     NOW = datetime.now(tz=UTC)
 
     MIN_UPLOADS = 500
     MIN_EDITS = 2000
     MIN_NOTES = 2000
+    MIN_WIKI_ARTIST_EDITS = 1000
+    MIN_FORUM_POSTS = 100
