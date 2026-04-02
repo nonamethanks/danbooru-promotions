@@ -96,8 +96,8 @@ def user_edits(user_id: int) -> str:
     try:
         user_data = PromotionCandidateEdits.get(PromotionCandidateEdits.id == user_id)
     except DoesNotExist:
-        return """
-        <p style='color: red'><b>The edits report for this user is not (yet?) available.</b></p>
+        return f"""
+        <p id="edits-breakdown-{user_id}" style='color: red'><b>The edits report for this user is not (yet?) available.</b></p>
         <p>This data will only be available for levels below builder, and is being backpopulated,
           so it's gonna take a while to collect it for old entries.</p>
         """
