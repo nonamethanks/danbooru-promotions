@@ -157,7 +157,7 @@ class PromotionCandidate(Model):
 
     @property
     def mintags_url(self) -> str:
-        return DanbooruPost.url_for(tags=f"gentags:<15 -scenery -no_humans user:{self.name} date:{Defaults.RECENT_SINCE_STR}..")
+        return DanbooruPost.url_for(tags=f"gentags:<15 -scenery -no_humans -abstract user:{self.name} date:{Defaults.RECENT_SINCE_STR}..")
 
 
 class PromotionCandidateEdits(Model):
