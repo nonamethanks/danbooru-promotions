@@ -61,6 +61,7 @@ class IncompleteUserData(BaseModel):
 
         if not update and self.last_checked:  # just check anyway if it's a new user
             logger.info("Reached the limit for fetchable user info in the current session. Skipping until next scan.")
+            fetched = False
         else:
             fetched = self.refresh_user(saved_data)
 
@@ -481,7 +482,7 @@ def get_known_user_ids() -> set[int]:
 
 def refresh_levels() -> None:
     user_ids = get_known_user_ids()
-    for user_batch in batched(user_ids, 100):
+    for user_batch in batched(user_ids, 200):
         updated_users = DanbooruUser.get_all(id=",".join(map(str, user_batch)))
         for user in updated_users:
             IncompleteUserData.update_from_danbooru_user(user)
