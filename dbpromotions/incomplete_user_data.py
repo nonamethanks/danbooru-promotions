@@ -95,9 +95,12 @@ class IncompleteUserData(BaseModel):
         if versions:
             self.last_edit = versions[0].updated_at
             return versions[0].updated_at
-        else:
-            self.last_edit = DanbooruWikiPageVersion.get(updater_id=self.id, cache=True, limit=1)[0].updated_at
-            return None
+
+        wiki_versions = DanbooruWikiPageVersion.get(updater_id=self.id, cache=True, limit=1)
+        if wiki_versions:
+            self.last_edit = wiki_versions[0].updated_at
+
+        return None
 
     def populate_other_values(self, last_edit: datetime | None, saved_data: PromotionCandidate) -> None:
         if self.total_posts == 0 or not last_edit:
