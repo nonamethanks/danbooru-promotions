@@ -34,17 +34,17 @@ def weeks_ago_str(dt: datetime | str) -> str:  # noqa: PLR0911
     if days_ago == 0:
         return "today"
     elif days_ago < 7:
-        return "this week"
+        return "1w"
     elif days_ago < 14:
-        return "2 weeks ago"
+        return "2w"
     elif days_ago < 21:
-        return "3 weeks ago"
+        return "3w"
     elif days_ago/31 <= 1:
-        return "this month"
+        return "1mo"
     elif days_ago/31 < 12:
-        return f"{days_ago//30 + 1} months ago"
+        return f"{days_ago//30 + 1}mo"
     else:
-        return f"{days_ago//365 + 1} years ago"
+        return f"{days_ago//365 + 1}y"
 
 
 @server.template_filter("days_ago_str")
@@ -53,11 +53,11 @@ def days_ago_str(dt: datetime | str) -> str:
     if days_ago == 0:
         return "today"
     elif days_ago < 31:
-        return f"{days_ago} days ago"
+        return f"{days_ago}d"
     elif days_ago/31 < 12:
-        return f"{days_ago//31 + 1} months ago"
+        return f"{days_ago//31 + 1}mo"
     else:
-        return f"{days_ago//365 + 1} years ago"
+        return f"{days_ago//365 + 1}y"
 
 
 def get_last_updated() -> datetime:
