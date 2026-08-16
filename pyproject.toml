@@ -11,7 +11,7 @@ dependencies = [
     "danbooru",
     "flask>=3.1.1",
     "gunicorn>=23.0.0",
-    "peewee>=3.18.1",
+    "peewee>=3.18.1,<4.0.0",
 ]
 
 [tool.ruff]
@@ -23,6 +23,7 @@ ignore = [
     "ANN003",  # Missing type annotation for **kwargs
     "ANN204",  # missing return type for special methods
     "BLE001",  # catch Exception
+    "CPY001",  # copyright notice
     "D",       # docstrings
     "EM101",   # Exception must not use a string literal, assign to variable first
     "EM102",   # Exception must not use an f-string literal
